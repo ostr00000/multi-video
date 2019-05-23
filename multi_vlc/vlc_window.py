@@ -143,6 +143,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow):
 
     def onStart(self):
         """Run model files in vlc processes"""
+        self.onClose()
         self.model.beginResetModel()
         for row in self.model:
             row.pid = self.processController.run(row)
