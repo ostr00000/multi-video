@@ -5,7 +5,7 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QObject, QEvent, QItemSelectionModel, QItemSelection
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QWidget, QMessageBox
 
-from multi_vlc.commands import getRunningVlc, getWidFromPid
+from multi_vlc.commands import getRunningVlc, getWidFromPid, resizeAndMove
 from multi_vlc.process_controller import ProcessController
 from multi_vlc.rubber_band_controller import RubberBandController
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
@@ -136,8 +136,13 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow):
 
     def onStart(self):
         """Run model files in vlc processes"""
+        self.model.beginResetModel()
         for row in self.model:
-            self.processController.run(row)
+            row.pid = self.processController.run(row)
+            row.wid = getWidFromPid(row.pid)  # TODO test if wait is necessary?
+            resizeAndMove(row)
+
+        self.model.endResetModel()
 
     def onPause(self, isPause):
         """Toggle pause of all vlc"""

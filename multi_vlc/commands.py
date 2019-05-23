@@ -1,7 +1,8 @@
 import re
 from subprocess import Popen, PIPE
-
 from typing import Tuple, List
+
+from multi_vlc.vlc_model import Row
 
 vlcFileArgPattern = re.compile('.*vlc.*--started-from-file( .*\.\w+)+')
 filesPattern = re.compile('(.*?\.\w+)')
@@ -34,3 +35,9 @@ def getWidFromPid(pid: int):
     output = runCommand(f'xdotool search --pid {pid}')
     output = [int(wid) for wid in output.split('\n')]
     return output
+
+
+def resizeAndMove(row: Row):
+    for wid in row.wid:
+        runCommand(f'xdotool windowsize {wid} {row.size[0]} {row.size[1]}')
+        runCommand(f'xdotool windowmove {wid} {row.position[0]} {row.position[1]}')
