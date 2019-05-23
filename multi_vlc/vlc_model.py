@@ -56,21 +56,16 @@ class VlcModel(QAbstractTableModel):
             return ','.join(map(os.path.basename, obj))
         return str(obj)
 
-    def addRow(self, files: List[str], **kwargs):
+    def appendRow(self, row: Row):
         i = len(self._data)
         self.beginInsertRows(QModelIndex(), i, i)
-        self._data.append(Row(files, **kwargs))
+        self._data.append(row)
         self.endInsertRows()
 
-    def deleteRows(self, rows: List[QModelIndex]):
-        internalRow = [r.row() for r in rows]
-        internalRow.sort()
-        for row in internalRow:
-            self.beginRemoveRows(QModelIndex(), row, row)
-            del self._data[row]
-
-        if internalRow:
-            self.endRemoveRows()
+    def removeRows(self, row: int, count: int, parent=QModelIndex()):
+        self.beginRemoveRows(parent, row, row + count)
+        del self._data[row:row + count]
+        self.endRemoveRows()
 
     def toJson(self):
         return json.dumps([d.toDict() for d in self._data], ensure_ascii=True)

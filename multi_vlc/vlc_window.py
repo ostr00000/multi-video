@@ -2,14 +2,14 @@ import os
 from typing import List
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import QUrl, QObject, QEvent, QItemSelectionModel, QItemSelection
+from PyQt5.QtCore import QUrl, QObject, QEvent, QItemSelectionModel, QItemSelection, QModelIndex
 from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QWidget, QMessageBox
 
 from multi_vlc.commands import getRunningVlc, getWidFromPid, resizeAndMove
 from multi_vlc.process_controller import ProcessController
 from multi_vlc.rubber_band_controller import RubberBandController
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
-from multi_vlc.vlc_model import VlcModel
+from multi_vlc.vlc_model import VlcModel, Row
 
 
 class MouseFilter(QObject):
@@ -49,6 +49,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow):
         self.model = VlcModel(self)
         self.tableView.setModel(self.model)
         self.processController = ProcessController()
+        self.lastJson = None
 
     def dragEnterEvent(self, a0: QtGui.QDragEnterEvent):
         """Accept only files"""
@@ -68,7 +69,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow):
                 continue
             valid.append(url.path())
         if valid:
-            self.model.addRow(valid)
+            self.model.appendRow(Row(valid))
 
     def closeEvent(self, a0: QtGui.QCloseEvent):
         self.onClose()
@@ -80,17 +81,22 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow):
         files, _ext = QFileDialog.getOpenFileNames(
             self, "Select files to open", filter=f"Films ({extensions})")
         if files:
-            self.model.addRow(files)
+            self.model.appendRow(Row(files))
 
     def onDelete(self):
         """Delete selected row"""
         rows = self.tableView.selectionModel().selectedRows()
         if rows:
-            self.model.deleteRows(rows)
+            for r in rows:  # type: QModelIndex
+                self.model.removeRow(r.row())
 
     def onReset(self):
         """Reset configuration to last loaded"""
-        raise NotImplementedError  # TODO QUndoStack
+        if self.lastJson:
+            self.model.loadJson(self.jsonObj)
+        else:
+            QMessageBox.warning(self, "Cannot reset",
+                                "To reset data must be loaded earlier")
 
     def onLoad(self):
         """Load model from file"""
@@ -99,7 +105,8 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow):
         if fileName:
             with open(fileName) as file:
                 jsonObj = file.read()
-            self.model.loadJson(jsonObj)
+            self.lastJson = jsonObj
+            self.onReset()
 
     def onSave(self):
         """Save model to file"""
@@ -117,7 +124,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow):
         for process in vlcProcesses:
             pid = process[0]
             wid = getWidFromPid(pid)
-            self.model.addRow(process[1], pid=pid, wid=wid)
+            self.model.appendRow(Row(process[1], pid=pid, wid=wid))
 
     def onSetPosition(self):
         """Activate screen rectangle selector"""
