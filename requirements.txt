@@ -1,0 +1,3 @@
+decorator
+#PyQt5
+#xdotool

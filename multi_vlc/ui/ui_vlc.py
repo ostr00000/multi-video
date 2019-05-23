@@ -11,10 +11,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_VlcMainWindow(object):
     def setupUi(self, VlcMainWindow):
         VlcMainWindow.setObjectName("VlcMainWindow")
-        VlcMainWindow.resize(651, 474)
+        VlcMainWindow.resize(703, 474)
         VlcMainWindow.setAcceptDrops(False)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icon/icon.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/icons/icons/main.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         VlcMainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(VlcMainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -52,6 +52,9 @@ class Ui_VlcMainWindow(object):
         self.actionPause = QtWidgets.QAction(VlcMainWindow)
         self.actionPause.setCheckable(True)
         self.actionPause.setObjectName("actionPause")
+        self.actionSave_As = QtWidgets.QAction(VlcMainWindow)
+        self.actionSave_As.setObjectName("actionSave_As")
+        self.toolBar.addAction(self.actionSave_As)
         self.toolBar.addAction(self.actionSave)
         self.toolBar.addAction(self.actionLoad)
         self.toolBar.addSeparator()
@@ -90,5 +93,7 @@ class Ui_VlcMainWindow(object):
         self.actionClose.setShortcut(_translate("VlcMainWindow", "Ctrl+Esc"))
         self.actionPause.setText(_translate("VlcMainWindow", "Pause"))
         self.actionPause.setShortcut(_translate("VlcMainWindow", "Space"))
+        self.actionSave_As.setText(_translate("VlcMainWindow", "Save As"))
+        self.actionSave_As.setShortcut(_translate("VlcMainWindow", "Ctrl+Shift+S"))
 
 from . import resources_rc

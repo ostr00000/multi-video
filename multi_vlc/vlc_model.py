@@ -73,7 +73,7 @@ class VlcModel(QAbstractTableModel):
     def loadJson(self, jsonObj):
         self.beginResetModel()
         obj: List = json.loads(jsonObj)
-        obj = [Row(d) for d in obj]
+        obj = [Row(**d) for d in obj]
         self._data = obj
         self.endResetModel()
 
