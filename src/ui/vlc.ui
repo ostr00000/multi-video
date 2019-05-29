@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>703</width>
+    <width>1177</width>
     <height>474</height>
    </rect>
   </property>
@@ -33,6 +33,15 @@
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>120</number>
+      </attribute>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>100</number>
+      </attribute>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
      </widget>
     </item>
    </layout>
@@ -57,11 +66,13 @@
    <addaction name="separator"/>
    <addaction name="actionFind_Opened"/>
    <addaction name="actionSet_Position"/>
+   <addaction name="actionRedistribute"/>
    <addaction name="separator"/>
    <addaction name="actionStart"/>
    <addaction name="actionPause"/>
    <addaction name="actionClose"/>
   </widget>
+  <widget class="QStatusBar" name="statusBarObj"/>
   <action name="actionAdd">
    <property name="text">
     <string>Add</string>
@@ -145,6 +156,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionRedistribute">
+   <property name="text">
+    <string>Redistribute</string>
    </property>
   </action>
  </widget>

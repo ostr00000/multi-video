@@ -11,6 +11,8 @@ class Row:
     files: List[str]
     position: Tuple[int, int] = (0, 0)
     size: Tuple[int, int] = (0, 0)
+    factor_x: int = 1
+    factor_y: int = 1
     pid: int = -1
     wid: List[int] = field(default_factory=list)
 
@@ -22,10 +24,23 @@ class Row:
 
 
 class VlcModel(QAbstractTableModel):
-    headers = [
-        'Files', 'Position (x, y)',
-        'Size (x, y)', 'Process id', 'Window ids'
-    ]
+    COL_FILES = 0
+    COL_POSITION = 1
+    COL_SIZE = 2
+    COL_FACTOR_X = 3
+    COL_FACTOR_Y = 4
+    COL_PID = 5
+    COL_WID = 6
+
+    headers = {
+        COL_FILES: 'Files',
+        COL_POSITION: 'Position (x, y)',
+        COL_SIZE: 'Size (x, y)',
+        COL_FACTOR_X: 'Factor x',
+        COL_FACTOR_Y: 'Factor y',
+        COL_PID: 'Process id',
+        COL_WID: 'Window ids',
+    }
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -34,7 +49,10 @@ class VlcModel(QAbstractTableModel):
         ]
 
     def flags(self, index: QModelIndex):
-        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        fl = Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        if index.column() in (VlcModel.COL_FACTOR_X, VlcModel.COL_FACTOR_Y):
+            fl |= Qt.ItemIsEditable
+        return fl
 
     def headerData(self, section: int, orientation: Qt.Orientation, role=None):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -52,9 +70,23 @@ class VlcModel(QAbstractTableModel):
 
         row = self._data[index.row()]
         obj = astuple(row)[index.column()]
-        if index.column() == 0:
+        if index.column() == VlcModel.COL_FILES:
             return ','.join(map(os.path.basename, obj))
+        elif index.column() in (VlcModel.COL_FACTOR_X, VlcModel.COL_FACTOR_Y):
+            return obj
         return str(obj)
+
+    def setData(self, index: QModelIndex, value, role: int = ...):
+        if role != Qt.EditRole:
+            return False
+
+        if index.column() == VlcModel.COL_FACTOR_X:
+            self._data[index.row()].factor_x = value
+        elif index.column() == VlcModel.COL_FACTOR_Y:
+            self._data[index.row()].factor_y = value
+        else:
+            return False
+        return True
 
     def appendRow(self, row: Row):
         i = len(self._data)
@@ -63,9 +95,10 @@ class VlcModel(QAbstractTableModel):
         self.endInsertRows()
 
     def removeRows(self, row: int, count: int, parent=QModelIndex()):
-        self.beginRemoveRows(parent, row, row + count)
+        self.beginRemoveRows(parent, row, row + count - 1)
         del self._data[row:row + count]
         self.endRemoveRows()
+        return True
 
     def toJson(self):
         return json.dumps([d.toDict() for d in self._data], ensure_ascii=True)
@@ -82,7 +115,10 @@ class VlcModel(QAbstractTableModel):
         row = self._data[r]
         row.position = (rectangle.x(), rectangle.y())
         row.size = (rectangle.width(), rectangle.height())
-        self.dataChanged.emit(self.index(r, 0), self.index(r, 4))
+
+        s = self.index(r, 0)
+        e = self.index(r, len(self.headers))
+        self.dataChanged.emit(s, e)
 
     def __iter__(self):
         return iter(self._data)

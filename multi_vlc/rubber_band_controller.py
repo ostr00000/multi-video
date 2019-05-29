@@ -9,7 +9,6 @@ class RubberBandController(QWidget):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.grabKeyboard()
         self.rubberBand: Optional[QRubberBand] = None
         self.rubberBandActive = False
         self.rubberBandStartPos: Optional[QPoint] = None
