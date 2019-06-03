@@ -88,6 +88,14 @@ class VlcModel(QAbstractTableModel):
             return False
         return True
 
+    def moveRow(self, sourceParent: QModelIndex, sourceRow: int, destinationParent: QModelIndex, destinationChild: int):
+        destinationRow = destinationChild + 1 if destinationChild > sourceRow else destinationChild
+        self.beginMoveRows(sourceParent, sourceRow, sourceRow, destinationParent, destinationRow)
+        row = self._data.pop(sourceRow)
+        self._data.insert(destinationChild, row)
+        self.endMoveRows()
+        return True
+
     def appendRow(self, row: Row):
         i = len(self._data)
         self.beginInsertRows(QModelIndex(), i, i)

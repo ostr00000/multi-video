@@ -66,6 +66,8 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self.actionAdd.triggered.connect(self.onAdd)
         self.actionDelete.triggered.connect(self.onDelete)
         self.actionReset.triggered.connect(self.onReset)
+        self.actionMove_Up.triggered.connect(self.onMoveUp)
+        self.actionMove_Down.triggered.connect(self.onMoveDown)
 
         self.actionFind_Opened.triggered.connect(self.onFindOpened)
         self.actionSet_Position.triggered.connect(self.onSetPosition)
@@ -168,6 +170,25 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
             QMessageBox.warning(self, "Cannot reset",
                                 "To reset data must be loaded earlier")
 
+    def onMoveUp(self):
+        """Move record up"""
+        self._moveRecord(-1)
+
+    def onMoveDown(self):
+        """Move record down"""
+        self._moveRecord(1)
+
+    def _moveRecord(self, delta: int):
+        rows = self.tableView.selectionModel().selectedRows()
+        if not rows:
+            self.statusBar().showMessage("No rows selected.")
+            return
+
+        rowNum = rows[0].row()
+        newRowNum = rowNum + delta
+        if 0 <= newRowNum < self.model.rowCount():
+            self.model.moveRow(QModelIndex(), rowNum, QModelIndex(), newRowNum)
+
     def onFindOpened(self):
         """Find processes vlc - look at '--started-from-file' option"""
         vlcProcesses = getRunningVlc()
@@ -200,6 +221,8 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
     def onRedistribute(self):
         """Automatically set size and position for vlc"""
         # TODO implement
+        data = list(iter(self.model))
+
         self.statusBar().showMessage("Configuration redistributed.")
 
     def onStart(self):
@@ -238,18 +261,3 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self.actionPause.setChecked(False)
         self.processController.terminate()
         self.statusBar().showMessage("Vlc closed.")
-
-
-def main():
-    logging.basicConfig()
-    mainLogger = logging.getLogger('multi_vlc')
-    mainLogger.setLevel(logging.DEBUG)
-
-    app = QApplication([])
-    vw = VlcWindow()
-    vw.show()
-    app.exec()
-
-
-if __name__ == '__main__':
-    main()
