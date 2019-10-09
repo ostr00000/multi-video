@@ -29,6 +29,7 @@ class ProcessController:
         valid = []
         for p in processes:
             try:
+                logger.debug(f"Sending: {command} for {p.pid}")
                 p.stdin.write(command)
                 p.stdin.flush()
             except BrokenPipeError:
@@ -39,9 +40,10 @@ class ProcessController:
         if not process:
             self._processes = valid
 
-    def setPause(self, isPause: bool):
+    def setPause(self, isPause: bool, pid=None):
         action = b"pause\n" if isPause else b"play\n"
-        self.sendCommand(action)
+        process = next(p for p in self._processes if p.pid == pid) if pid else None
+        self.sendCommand(action, process)
 
     def terminate(self):
         self.sendCommand(b'quit\n')

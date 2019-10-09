@@ -4,7 +4,7 @@ from multi_vlc import moduleName, appName
 
 
 def main():
-    logging.basicConfig()
+    logging.basicConfig(level=logging.DEBUG)
     mainLogger = logging.getLogger(moduleName)
     mainLogger.setLevel(logging.DEBUG)
 
