@@ -6,12 +6,12 @@ from typing import Tuple, List
 from multi_vlc.vlc_model import Row
 
 logger = logging.getLogger(__name__)
-vlcFileArgPattern = re.compile('.*vlc.*--started-from-file( .*\.\w+)+')
+vlcFileArgPattern = re.compile('vlc.*--started-from-file( .*\.\w+)+')
 filesPattern = re.compile('(.*?\.\w+)')
 
 
 def runCommand(command) -> str:
-    # logger.debug(f"Executing: '{command}'")
+    logger.debug(f"Executing: '{command}'")
     process = Popen(command, stdout=PIPE, shell=True, stderr=PIPE)
     stdout = process.communicate()[0]
     result = stdout.decode('utf-8').rstrip()
@@ -36,6 +36,8 @@ def getRunningVlc() -> List[Tuple[int, List[str]]]:
 
 def getWid():
     output = runCommand('xdotool search vlc')
+    if not output:
+        logger.warning("xdotool return empty string")
     output = [int(wid) for wid in output.split('\n')]
     return output
 

@@ -10,11 +10,8 @@
     <height>474</height>
    </rect>
   </property>
-  <property name="acceptDrops">
-   <bool>false</bool>
-  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>VLC Manager</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resources.qrc">
@@ -68,27 +65,71 @@
    <addaction name="separator"/>
    <addaction name="actionFind_Opened"/>
    <addaction name="actionSet_Position"/>
-   <addaction name="actionRedistribute"/>
+   <addaction name="actionAssign"/>
    <addaction name="separator"/>
    <addaction name="actionStart"/>
    <addaction name="actionPause"/>
    <addaction name="actionClose"/>
   </widget>
   <widget class="QStatusBar" name="statusBarObj"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1177</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionLoad"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_As"/>
+   </widget>
+   <widget class="QMenu" name="menuVideo">
+    <property name="title">
+     <string>&amp;Video</string>
+    </property>
+    <addaction name="actionAdd"/>
+    <addaction name="actionDelete"/>
+    <addaction name="actionMove_Down"/>
+    <addaction name="actionMove_Up"/>
+    <addaction name="separator"/>
+    <addaction name="actionStart"/>
+    <addaction name="actionPause"/>
+    <addaction name="actionClose"/>
+   </widget>
+   <widget class="QMenu" name="menu_Position">
+    <property name="title">
+     <string>&amp;Position</string>
+    </property>
+    <addaction name="actionFind_Opened"/>
+    <addaction name="actionSet_Position"/>
+    <addaction name="actionAssign"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuVideo"/>
+   <addaction name="menu_Position"/>
+  </widget>
   <action name="actionAdd">
    <property name="icon">
-    <iconset theme="list-add"/>
+    <iconset theme="list-add">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Add</string>
+    <string>&amp;Add</string>
    </property>
   </action>
   <action name="actionDelete">
    <property name="icon">
-    <iconset theme="list-remove"/>
+    <iconset theme="list-remove">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Delete</string>
+    <string>&amp;Delete</string>
    </property>
    <property name="shortcut">
     <string>Del</string>
@@ -96,7 +137,8 @@
   </action>
   <action name="actionReset">
    <property name="icon">
-    <iconset theme="document-revert"/>
+    <iconset theme="document-revert">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Reset</string>
@@ -104,10 +146,11 @@
   </action>
   <action name="actionLoad">
    <property name="icon">
-    <iconset theme="document-open"/>
+    <iconset theme="document-open">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Load</string>
+    <string>&amp;Load</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -115,10 +158,11 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="document-save"/>
+    <iconset theme="document-save">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Save</string>
+    <string>&amp;Save</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -126,10 +170,11 @@
   </action>
   <action name="actionFind_Opened">
    <property name="icon">
-    <iconset theme="edit-find"/>
+    <iconset theme="edit-find">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Find Opened</string>
+    <string>&amp;Find Opened</string>
    </property>
    <property name="toolTip">
     <string>Find Opened</string>
@@ -140,10 +185,11 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="document-page-setup"/>
+    <iconset theme="document-page-setup">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Set Position</string>
+    <string>&amp;Set Position</string>
    </property>
    <property name="shortcut">
     <string>S</string>
@@ -151,18 +197,20 @@
   </action>
   <action name="actionStart">
    <property name="icon">
-    <iconset theme="media-playback-start"/>
+    <iconset theme="media-playback-start">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Start</string>
+    <string>&amp;Start</string>
    </property>
   </action>
   <action name="actionClose">
    <property name="icon">
-    <iconset theme="process-stop"/>
+    <iconset theme="process-stop">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Close</string>
+    <string>&amp;Close</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Esc</string>
@@ -173,10 +221,11 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="media-playback-pause"/>
+    <iconset theme="media-playback-pause">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Pause</string>
+    <string>&amp;Pause</string>
    </property>
    <property name="shortcut">
     <string>Space</string>
@@ -184,40 +233,52 @@
   </action>
   <action name="actionSave_As">
    <property name="icon">
-    <iconset theme="document-save-as"/>
+    <iconset theme="document-save-as">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Save As</string>
+    <string>Save &amp;As</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
    </property>
   </action>
-  <action name="actionRedistribute">
+  <action name="actionAssign">
    <property name="icon">
-    <iconset theme="zoom-fit-best"/>
+    <iconset theme="zoom-fit-best">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Redistribute</string>
+    <string>&amp;Assign</string>
+   </property>
+   <property name="toolTip">
+    <string>Assign</string>
    </property>
   </action>
   <action name="actionMove_Down">
    <property name="icon">
-    <iconset theme="go-down"/>
+    <iconset theme="go-down">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Move Down</string>
+    <string>&amp;Move Down</string>
    </property>
   </action>
   <action name="actionMove_Up">
    <property name="icon">
-    <iconset theme="go-up"/>
+    <iconset theme="go-up">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Move Up</string>
+    <string>Move &amp;Up</string>
    </property>
    <property name="toolTip">
     <string>Move Up</string>
+   </property>
+  </action>
+  <action name="actiondd">
+   <property name="text">
+    <string>dd</string>
    </property>
   </action>
  </widget>

@@ -3,10 +3,10 @@ import os
 from typing import List
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import QUrl, QObject, QEvent, QItemSelectionModel, QItemSelection, QModelIndex, QThread
+from PyQt5.QtCore import QUrl, QEvent, QItemSelectionModel, QItemSelection, QModelIndex, \
+    QThread
 from PyQt5.QtGui import QMouseEvent
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QWidget, QMessageBox
-
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
 from multi_vlc.commands import getRunningVlc, resizeAndMove, getWid
 from multi_vlc.decoators import SlotDecorator
 from multi_vlc.process_controller import ProcessController
@@ -19,19 +19,6 @@ from multi_vlc.vlc_model import VlcModel, Row
 logger = logging.getLogger(__name__)
 
 
-class MouseFilter(QObject):
-
-    def __init__(self, *args):
-        super().__init__(*args)
-
-    def eventFilter(self, a0: 'QWidget', a1: 'QEvent'):
-        if a1.type() == QEvent.WindowDeactivate:
-            if isinstance(a1, QMouseEvent):
-                a0.mousePressEvent(a1)
-                return True
-        return super().eventFilter(a0, a1)
-
-
 class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
                 metaclass=SlotDecorator):
     """Allow to configure position for multiple vlc instances"""
@@ -42,7 +29,6 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         super().__init__(*args)
         self.setupUi(self)
         self.setAcceptDrops(True)
-        self.installEventFilter(MouseFilter(self))
         self._connectButtons()
 
         self.model = VlcModel(self)
@@ -71,11 +57,18 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
 
         self.actionFind_Opened.triggered.connect(self.onFindOpened)
         self.actionSet_Position.triggered.connect(self.onSetPosition)
-        self.actionRedistribute.triggered.connect(self.onRedistribute)
+        self.actionAssign.triggered.connect(self.onRedistribute)
 
         self.actionStart.triggered.connect(self.onStart)
         self.actionPause.triggered.connect(self.onPause)
         self.actionClose.triggered.connect(self.onClose)
+
+    def event(self, event: QEvent):
+        if event.type() == QEvent.WindowDeactivate:
+            if isinstance(event, QMouseEvent):
+                self.mousePressEvent(event)
+                return True
+        return super().event(event)
 
     def loadConfiguration(self, path):
         try:
