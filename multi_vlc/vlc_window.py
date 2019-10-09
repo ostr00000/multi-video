@@ -13,6 +13,7 @@ from multi_vlc.process_controller import ProcessController
 from multi_vlc.rubber_band_controller import RubberBandController
 from multi_vlc.settings import settings
 from multi_vlc.spin_box_delegate import SpinBoxDelegate
+from multi_vlc.time_status_bar import TimeStatusBar
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
 from multi_vlc.vlc_model import VlcModel, Row
 
@@ -30,6 +31,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self.setupUi(self)
         self.setAcceptDrops(True)
         self._connectButtons()
+        self.setStatusBar(TimeStatusBar(self))
 
         self.model = VlcModel(self)
         self.tableView.setModel(self.model)
@@ -45,6 +47,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
             self.loadConfiguration(path)
 
     def _connectButtons(self):
+        self.actionNew.triggered.connect(self.onNew)
         self.actionSave_As.triggered.connect(self.onSaveAs)
         self.actionSave.triggered.connect(self.onSave)
         self.actionLoad.triggered.connect(self.onLoad)
@@ -108,6 +111,10 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self.onClose()
         super().closeEvent(a0)
 
+    def onNew(self):
+        """Create new model"""
+        self.model.loadJson('[]')
+
     def onLoad(self):
         """Load model from file"""
         filePath, _ext = QFileDialog.getOpenFileName(
@@ -150,9 +157,9 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         """Delete selected row"""
         rows = self.tableView.selectionModel().selectedRows()
         if rows:
-            for r in rows:  # type: QModelIndex
+            for r in sorted(rows, key=lambda i: i.row(), reverse=True):  # type: QModelIndex
                 self.model.removeRow(r.row())
-            self.statusBar().showMessage("Row deleted.")
+            self.statusBar().showMessage("Rows deleted.")
 
     def onReset(self):
         """Reset configuration to last loaded"""
@@ -172,15 +179,16 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self._moveRecord(1)
 
     def _moveRecord(self, delta: int):
-        rows = self.tableView.selectionModel().selectedRows()
-        if not rows:
-            self.statusBar().showMessage("No rows selected.")
+        ci: QModelIndex = self.tableView.selectionModel().currentIndex()
+        if not ci.isValid():
+            self.statusBar().showMessage("No row selected.")
             return
 
-        rowNum = rows[0].row()
+        rowNum = ci.row()
         newRowNum = rowNum + delta
         if 0 <= newRowNum < self.model.rowCount():
             self.model.moveRow(QModelIndex(), rowNum, QModelIndex(), newRowNum)
+            self.statusBar().showMessage("Row moved.")
 
     def onFindOpened(self):
         """Find processes vlc - look at '--started-from-file' option"""
@@ -195,14 +203,14 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
 
     def onSetPosition(self):
         """Activate screen rectangle selector"""
-        rows = self.tableView.selectionModel().selectedRows()
-        if not rows:
+        ci = self.tableView.selectionModel().currentIndex()
+        if not ci.isValid():
             s = self.model.index(0, 0)
             e = self.model.index(0, len(VlcModel.headers) - 1)
             selection = QItemSelection(s, e)
-            self.tableView.selectionModel().select(selection, QItemSelectionModel.Select)
-            rows = self.tableView.selectionModel().selectedRows()
-        if not rows:
+            self.tableView.selectionModel().select(selection, QItemSelectionModel.SelectCurrent)
+            ci = self.tableView.selectionModel().currentIndex()
+        if not ci.isValid():
             QMessageBox.warning(self, 'Not selected', 'None row is selected')
             self.actionSet_Position.setChecked(False)
             return

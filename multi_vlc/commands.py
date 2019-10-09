@@ -6,7 +6,7 @@ from typing import Tuple, List
 from multi_vlc.vlc_model import Row
 
 logger = logging.getLogger(__name__)
-vlcFileArgPattern = re.compile('vlc.*--started-from-file( .*\.\w+)+')
+vlcFileArgPattern = re.compile('.*vlc.*--started-from-file( .*\.\w+)+')
 filesPattern = re.compile('(.*?\.\w+)')
 
 
@@ -23,9 +23,9 @@ def getRunningVlc() -> List[Tuple[int, List[str]]]:
     result = []
     for line in output.split('\n'):
         pid, command = line.split(maxsplit=1)
-        pid = int(pid)
         match = vlcFileArgPattern.match(command)
         if match:
+            pid = int(pid)
             filesStr = match.group(1).lstrip()
             files = filesPattern.split(filesStr)
             files = [file.lstrip() for file in filter(None, files)]

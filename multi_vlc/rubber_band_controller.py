@@ -52,7 +52,7 @@ class RubberBandController(QWidget):
 
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent):
         if self.rubberBandActive and self.rubberBand:
-            row = self.tableView.selectionModel().selectedRows()[0]
+            row = self.tableView.selectionModel().currentIndex().row()
             geom = QRect(self.rubberBandStartPos, a0.globalPos()).normalized()
             self.model.setPosition(row, geom)
             self._onSetPositionClose()
