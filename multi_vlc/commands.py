@@ -1,13 +1,13 @@
 import logging
 import re
 from subprocess import Popen, PIPE
-from typing import Tuple, List
+from typing import Set
 
 from multi_vlc.vlc_model import Row
 
 logger = logging.getLogger(__name__)
-vlcFileArgPattern = re.compile('.*vlc.*--started-from-file( .*\.\w+)+')
-filesPattern = re.compile('(.*?\.\w+)')
+vlcFileArgPattern = re.compile(r'.*vlc.*--started-from-file( \'?.*\.\w+\'?)+')
+filesPattern = re.compile(r'\'?(.*?\.\w+)\'?')
 
 
 def runCommand(command) -> str:
@@ -18,18 +18,18 @@ def runCommand(command) -> str:
     return result
 
 
-def getRunningVlc() -> List[Tuple[int, List[str]]]:
+def getRunningVlc() -> Set[str]:
     output = runCommand('ps -eo pid,command | grep vlc')
-    result = []
+    result = set()
     for line in output.split('\n'):
         pid, command = line.split(maxsplit=1)
         match = vlcFileArgPattern.match(command)
         if match:
-            pid = int(pid)
             filesStr = match.group(1).lstrip()
             files = filesPattern.split(filesStr)
             files = [file.lstrip() for file in filter(None, files)]
-            result.append((pid, files))
+            for f in files:
+                result.add(f)
 
     return result
 

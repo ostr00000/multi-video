@@ -192,11 +192,10 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
 
     def onFindOpened(self):
         """Find processes vlc - look at '--started-from-file' option"""
-        vlcProcesses = getRunningVlc()
-        for process in vlcProcesses:
-            pid, files = process
-            self.model.appendRow(Row(files=files, pid=pid))
-        if vlcProcesses:
+        vlcFiles = getRunningVlc()
+        for file in vlcFiles:
+            self.model.appendRow(Row(files=[file]))
+        if vlcFiles:
             self.statusBar().showMessage("Found vlc instances.")
         else:
             self.statusBar().showMessage("Not found any vlc.")
