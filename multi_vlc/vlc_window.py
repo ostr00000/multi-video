@@ -17,6 +17,8 @@ from multi_vlc.time_status_bar import TimeStatusBar
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
 from multi_vlc.vlc_model import VlcModel, Row
 
+SLEEP_TIME = 1000
+
 logger = logging.getLogger(__name__)
 
 
@@ -228,28 +230,41 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
     def onStart(self):
         """Run model files in vlc processes"""
         running = self.processController.isRunning()
-        self.onClose()
         if running:
-            QThread.sleep(1)
+            self.actionPause.triggered.emit(False)
+            self.actionPause.setChecked(False)
+            return
+
+        self.onClose()
 
         self.model.beginResetModel()
-        try:
-            allWid = set(getWid())
-            for row in self.model:
-                row.pid = self.processController.run(row)
-                QThread.sleep(1)
-                newerWid = set(getWid())
-                row.wid = list(newerWid - allWid)
-                allWid = newerWid
-                resizeAndMove(row)
-        except ValueError as er:
-            logger.error(er)
+        self._runProcess()
         self.model.endResetModel()
 
-        QThread.sleep(1)
-        self.onPause(isPause=True)
         self.actionPause.setChecked(True)
         self.statusBar().showMessage("Vlc started.")
+
+    def _runProcess(self):
+        allWid = set(getWid())
+        for row in self.model:
+            row.pid = self.processController.run(row)
+            QThread.msleep(SLEEP_TIME)
+            self.processController.setPause(True, row.pid)
+
+            try:
+                newerWid = set(getWid())
+            except ValueError:
+
+                QThread.msleep(SLEEP_TIME)
+                try:
+                    newerWid = set(getWid())
+                except ValueError as er:
+                    logger.error(er)
+                    continue
+
+            row.wid = list(newerWid - allWid)
+            allWid = newerWid
+            resizeAndMove(row)
 
     def onPause(self, isPause):
         """Toggle pause of all vlc"""
@@ -260,4 +275,5 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         """Close all vlc processes"""
         self.actionPause.setChecked(False)
         self.processController.terminate()
+        self.model.loadJson(self.model.toJson())
         self.statusBar().showMessage("Vlc closed.")
