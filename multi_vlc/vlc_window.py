@@ -8,6 +8,7 @@ from PyQt5.QtCore import QUrl, QEvent, QItemSelectionModel, QItemSelection, QMod
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
 from multi_vlc.commands import getRunningVlc, resizeAndMove, getWid
+from multi_vlc.const import ALLOWED_EXTENSIONS
 from multi_vlc.decoators import SlotDecorator
 from multi_vlc.process_controller import ProcessController
 from multi_vlc.rubber_band_controller import RubberBandController
@@ -25,8 +26,6 @@ logger = logging.getLogger(__name__)
 class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
                 metaclass=SlotDecorator):
     """Allow to configure position for multiple vlc instances"""
-
-    ALLOWED_EXT = ('mp4', 'webm', 'avi')
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -94,7 +93,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
             a0.acceptProposedAction()
 
     def dropEvent(self, a0: QtGui.QDropEvent):
-        """Accept multiple files with ALLOWED_EXTension"""
+        """Accept multiple files with ALLOWED_EXTENSIONS"""
         urls: List[QUrl] = a0.mimeData().urls()
         valid = []
         for url in urls:
@@ -102,7 +101,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
                 continue
 
             ext = os.path.splitext(url.path())[1][1:].lower()
-            if ext not in self.ALLOWED_EXT:
+            if ext not in ALLOWED_EXTENSIONS:
                 continue
             valid.append(url.path())
         if valid:
@@ -148,7 +147,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
 
     def onAdd(self):
         """Add selected files to model"""
-        extensions = ' '.join(f'*.{ext}' for ext in self.ALLOWED_EXT)
+        extensions = ' '.join(f'*.{ext}' for ext in ALLOWED_EXTENSIONS)
         files, _ext = QFileDialog.getOpenFileNames(
             self, "Select files to open", filter=f"Films ({extensions})")
         if files:
