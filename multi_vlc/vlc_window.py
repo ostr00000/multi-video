@@ -6,19 +6,18 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QEvent, QItemSelectionModel, QItemSelection, QModelIndex, \
     QThread
 from PyQt5.QtGui import QMouseEvent
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QApplication
 from multi_vlc.commands import getRunningVlc, resizeAndMove, getWid
-from multi_vlc.const import ALLOWED_EXTENSIONS
+from multi_vlc.const import ALLOWED_EXTENSIONS, SLEEP_TIME
 from multi_vlc.decoators import SlotDecorator
 from multi_vlc.process_controller import ProcessController
 from multi_vlc.rubber_band_controller import RubberBandController
 from multi_vlc.settings import settings
 from multi_vlc.spin_box_delegate import SpinBoxDelegate
+from multi_vlc.split_window import calculatePosition
 from multi_vlc.time_status_bar import TimeStatusBar
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
 from multi_vlc.vlc_model import VlcModel, Row
-
-SLEEP_TIME = 1000
 
 logger = logging.getLogger(__name__)
 
@@ -221,9 +220,11 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
 
     def onRedistribute(self):
         """Automatically set size and position for vlc"""
-        # TODO implement
-        data = list(iter(self.model))
-
+        data: List[Row] = list(iter(self.model))
+        data.reverse()
+        screen = QApplication.primaryScreen().availableSize()
+        newPositions = calculatePosition(data, screen.width(), screen.height())
+        self.model.setPositionAndSize(newPositions)
         self.statusBar().showMessage("Configuration redistributed.")
 
     def onStart(self):
@@ -241,6 +242,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self.model.endResetModel()
 
         self.actionPause.setChecked(True)
+        self.raise_()
         self.statusBar().showMessage("Vlc started.")
 
     def _runProcess(self):

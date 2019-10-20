@@ -1,9 +1,11 @@
 import json
 import os
+import uuid
 from dataclasses import dataclass, field, astuple, asdict
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, QRect
+from multi_vlc.split_window import Position
 
 
 @dataclass
@@ -15,6 +17,10 @@ class Row:
     factor_y: int = 1
     pid: int = -1
     wid: List[int] = field(default_factory=list)
+    hashId: str = field(default_factory=lambda: uuid.uuid4().__str__())
+
+    def __hash__(self):
+        return hash(self.hashId)
 
     def toDict(self):
         d = asdict(self)
@@ -88,7 +94,8 @@ class VlcModel(QAbstractTableModel):
             return False
         return True
 
-    def moveRow(self, sourceParent: QModelIndex, sourceRow: int, destinationParent: QModelIndex, destinationChild: int):
+    def moveRow(self, sourceParent: QModelIndex, sourceRow: int, destinationParent: QModelIndex,
+                destinationChild: int):
         destinationRow = destinationChild + 1 if destinationChild > sourceRow else destinationChild
         self.beginMoveRows(sourceParent, sourceRow, sourceRow, destinationParent, destinationRow)
         row = self._data.pop(sourceRow)
@@ -127,6 +134,16 @@ class VlcModel(QAbstractTableModel):
         s = self.index(r, 0)
         e = self.index(r, len(self.headers))
         self.dataChanged.emit(s, e)
+
+    def setPositionAndSize(self, newValues: Dict[Row, Position]):
+        self.beginResetModel()
+
+        for row in self._data:
+            newValue = newValues[row]
+            row.position = newValue.posX, newValue.posY
+            row.size = newValue.sizeX, newValue.sizeY
+
+        self.endResetModel()
 
     def __iter__(self):
         return iter(self._data)
