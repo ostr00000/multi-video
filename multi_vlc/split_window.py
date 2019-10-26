@@ -71,6 +71,12 @@ def calculatePosition(elements: Collection[_X], x: int, y: int):
     return result
 
 
+def addOffsets(top: int, left: int, *elements: Position):
+    for elem in elements:
+        elem.posX += left
+        elem.posY += top
+
+
 def draw(data: List[Position], dimX, dimY):
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')

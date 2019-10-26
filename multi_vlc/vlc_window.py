@@ -14,7 +14,7 @@ from multi_vlc.process_controller import ProcessController
 from multi_vlc.rubber_band_controller import RubberBandController
 from multi_vlc.settings import settings
 from multi_vlc.spin_box_delegate import SpinBoxDelegate
-from multi_vlc.split_window import calculatePosition
+from multi_vlc.split_window import calculatePosition, addOffsets
 from multi_vlc.time_status_bar import TimeStatusBar
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
 from multi_vlc.vlc_model import VlcModel, Row
@@ -221,9 +221,12 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
     def onRedistribute(self):
         """Automatically set size and position for vlc"""
         data: List[Row] = list(iter(self.model))
-        data.reverse()
-        screen = QApplication.primaryScreen().availableSize()
+        # data.reverse()
+
+        screen = QApplication.primaryScreen().availableGeometry()
         newPositions = calculatePosition(data, screen.width(), screen.height())
+        addOffsets(screen.top(), screen.left(), *newPositions.values())
+
         self.model.setPositionAndSize(newPositions)
         self.statusBar().showMessage("Configuration redistributed.")
 

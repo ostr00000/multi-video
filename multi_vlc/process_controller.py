@@ -15,6 +15,7 @@ class ProcessController:
 
     def run(self, row: Row):
         files = ' '.join(f"'{f}'" for f in row.files)
+        # --qt-minimal-view  not work as expected
         cmd = f'vlc --intf qt --extraintf rc --started-from-file {files}'
         logger.debug(cmd)
         process = Popen(cmd, shell=True,
