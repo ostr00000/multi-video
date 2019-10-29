@@ -6,14 +6,14 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QEvent, QItemSelectionModel, QItemSelection, QModelIndex
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QApplication
-from multi_vlc.commands import getRunningVlc
+from util.commands import getRunningVlc
 from multi_vlc.const import ALLOWED_EXTENSIONS
-from multi_vlc.decoators import SlotDecorator, changeStatusDec
-from multi_vlc.process_controller import ProcessController
-from multi_vlc.rubber_band_controller import RubberBandController
-from multi_vlc.settings import settings
-from multi_vlc.split_window import calculatePosition, addOffsets
-from multi_vlc.time_status_bar import TimeStatusBar
+from util.decoators import SlotDecorator, changeStatusDec
+from qobjects.process_controller import ProcessController
+from qobjects.rubber_band_controller import RubberBandController
+from qobjects.settings import settings
+from util.split_window import calculatePosition, addOffsets
+from qobjects.time_status_bar import TimeStatusBar
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
 from multi_vlc.vlc_model import VlcModel, Row
 

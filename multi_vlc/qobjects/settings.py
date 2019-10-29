@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QSettings
 
 
-class Settings(QSettings):
+class _Settings(QSettings):
     LAST_PATH = 'lastConfig/path'
 
     def __init__(self):
@@ -15,4 +15,4 @@ class Settings(QSettings):
         return self.value(self.LAST_PATH, defaultValue=None, type=str)
 
 
-settings = Settings()
+settings = _Settings()

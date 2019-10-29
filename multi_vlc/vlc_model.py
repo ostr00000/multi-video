@@ -5,7 +5,7 @@ from dataclasses import dataclass, field, astuple, asdict
 from typing import Tuple, List, Dict
 
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, QRect
-from multi_vlc.split_window import Position
+from util.split_window import Position
 
 
 class Enum:
@@ -17,7 +17,6 @@ class Enum:
 
 @dataclass
 class DataClass(Enum):
-
     def replace(self, index: int, val):
         k, v = list(self.getDict())[index]
         setattr(self, k, val)

@@ -3,9 +3,9 @@ from subprocess import Popen, PIPE
 from typing import TYPE_CHECKING, List
 
 from PyQt5.QtCore import QObject, pyqtSlot, QThread
-from commands import getWid, resizeAndMove
+from util.commands import getWid, resizeAndMove
 from const import SLEEP_TIME
-from decoators import changeStatusDec, SlotDecorator, processEventsIterator, dataChangeIterator
+from util.decoators import changeStatusDec, SlotDecorator, processEventsIterator, dataChangeIterator
 from multi_vlc.vlc_model import Row
 
 if TYPE_CHECKING:
