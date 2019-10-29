@@ -1,10 +1,12 @@
 import logging
 import traceback
 import types
+from typing import Iterator, TypeVar
 
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, QCoreApplication, QAbstractTableModel
 from decorator import decorator
 
+_A = TypeVar('_A')
 logger = logging.getLogger(__name__)
 
 
@@ -31,3 +33,38 @@ class SlotDecorator(type(QObject), type):
                     namespace[funName] = exceptionDec(logDec(fun))
 
         return super().__new__(mcs, name, bases, namespace)
+
+
+@decorator
+def changeStatusDec(fun, msg: str = '', failureMsg='', *args, **kwargs):
+    """
+    None -> (skip decorator)
+    False -> failureMsg
+    _ -> msg
+    """
+    val = fun(*args, **kwargs)
+    if val is False:
+        msg = failureMsg
+    elif val is None:
+        return val
+
+    self = args[0]
+    try:
+        statusBar = self.statusBar()
+    except AttributeError:
+        statusBar = self.parent().statusBar()
+
+    statusBar.showMessage(msg)
+    return val
+
+
+def modelResetIterator(model: QAbstractTableModel, it: Iterator[_A]) -> Iterator[_A]:
+    model.beginResetModel()
+    yield from it
+    model.endResetModel()
+
+
+def processEventsIterator(it: Iterator[_A]) -> Iterator[_A]:
+    for i in it:
+        QCoreApplication.instance().processEvents()
+        yield i

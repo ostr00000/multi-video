@@ -9,7 +9,7 @@ from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QApplication
 from multi_vlc.commands import getRunningVlc, resizeAndMove, getWid
 from multi_vlc.const import ALLOWED_EXTENSIONS, SLEEP_TIME
-from multi_vlc.decoators import SlotDecorator
+from multi_vlc.decoators import SlotDecorator, processEventsIterator, changeStatusDec
 from multi_vlc.process_controller import ProcessController
 from multi_vlc.rubber_band_controller import RubberBandController
 from multi_vlc.settings import settings
@@ -30,6 +30,8 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         super().__init__(*args)
         self.setupUi(self)
         self.setAcceptDrops(True)
+
+        self.processController = ProcessController(self)
         self._connectButtons()
         self.setStatusBar(TimeStatusBar(self))
 
@@ -40,7 +42,6 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self.tableView.setItemDelegateForColumn(VlcModel.COL_FACTOR_X, self.spinBoxDelegate)
         self.tableView.setItemDelegateForColumn(VlcModel.COL_FACTOR_Y, self.spinBoxDelegate)
 
-        self.processController = ProcessController()
         self.lastJson = None
         path = settings.getLastFile()
         if path:
@@ -62,9 +63,9 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self.actionSet_Position.triggered.connect(self.onSetPosition)
         self.actionAssign.triggered.connect(self.onRedistribute)
 
-        self.actionStart.triggered.connect(self.onStart)
-        self.actionPause.triggered.connect(self.onPause)
-        self.actionClose.triggered.connect(self.onClose)
+        self.actionStart.triggered.connect(self.processController.onStart)
+        self.actionPause.triggered.connect(self.processController.onPause)
+        self.actionClose.triggered.connect(self.processController.onStop)
 
     def event(self, event: QEvent):
         if event.type() == QEvent.WindowDeactivate:
@@ -73,6 +74,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
                 return True
         return super().event(event)
 
+    @changeStatusDec(msg="Configuration loaded.")
     def loadConfiguration(self, path):
         try:
             with open(path) as file:
@@ -84,7 +86,6 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self.lastJson = jsonObj
         self.model.loadJson(jsonObj)
         settings.saveLastFile(path)
-        self.statusBar().showMessage("Configuration loaded.")
 
     def dragEnterEvent(self, a0: QtGui.QDragEnterEvent):
         """Accept only files"""
@@ -108,7 +109,8 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
             self.statusBar().showMessage("Files added.")
 
     def closeEvent(self, a0: QtGui.QCloseEvent):
-        self.onClose()
+        self.processController.onStop()
+        # self.model.loadJson(self.model.toJson())
         super().closeEvent(a0)
 
     def onNew(self):
@@ -122,16 +124,18 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         if filePath:
             self.loadConfiguration(filePath)
 
+    @changeStatusDec(msg="Configuration saved.")
     def onSave(self):
         """Save model to last file"""
         filePath = settings.getLastFile()
         if filePath:
             with open(filePath, 'w') as file:
                 file.write(self.model.toJson())
-            self.statusBar().showMessage("Configuration saved.")
+            return True
         else:
             self.onSaveAs()
 
+    @changeStatusDec(msg="Configuration saved.")
     def onSaveAs(self):
         """Save model to new file"""
         filePath, _ext = QFileDialog.getSaveFileName(
@@ -142,8 +146,9 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
             with open(filePath, 'w') as file:
                 file.write(self.model.toJson())
             settings.saveLastFile(filePath)
-            self.statusBar().showMessage("Configuration saved.")
+            return True
 
+    @changeStatusDec(msg="Files added.")
     def onAdd(self):
         """Add selected files to model"""
         extensions = ' '.join(f'*.{ext}' for ext in ALLOWED_EXTENSIONS)
@@ -151,21 +156,23 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
             self, "Select files to open", filter=f"Films ({extensions})")
         if files:
             self.model.appendRow(Row(files))
-            self.statusBar().showMessage("Files added.")
+            return True
 
+    @changeStatusDec(msg="Rows deleted.")
     def onDelete(self):
         """Delete selected row"""
         rows = self.tableView.selectionModel().selectedRows()
         if rows:
             for r in sorted(rows, key=lambda i: i.row(), reverse=True):  # type: QModelIndex
                 self.model.removeRow(r.row())
-            self.statusBar().showMessage("Rows deleted.")
+            return True
 
+    @changeStatusDec(msg="Configuration reset.")
     def onReset(self):
         """Reset configuration to last loaded"""
         if self.lastJson:
             self.model.loadJson(self.lastJson)
-            self.statusBar().showMessage("Configuration reset.")
+            return True
         else:
             QMessageBox.warning(self, "Cannot reset",
                                 "To reset data must be loaded earlier")
@@ -178,28 +185,27 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         """Move record down"""
         self._moveRecord(1)
 
+    @changeStatusDec(msg="Row moved.", failureMsg="No row selected.")
     def _moveRecord(self, delta: int):
         ci: QModelIndex = self.tableView.selectionModel().currentIndex()
         if not ci.isValid():
-            self.statusBar().showMessage("No row selected.")
-            return
+            return False
 
         rowNum = ci.row()
         newRowNum = rowNum + delta
         if 0 <= newRowNum < self.model.rowCount():
             self.model.moveRow(QModelIndex(), rowNum, QModelIndex(), newRowNum)
-            self.statusBar().showMessage("Row moved.")
+            return True
 
+    @changeStatusDec(msg="Found vlc instances.", failureMsg="Not found any vlc.")
     def onFindOpened(self):
         """Find processes vlc - look at '--started-from-file' option"""
         vlcFiles = getRunningVlc()
         for file in vlcFiles:
             self.model.appendRow(Row(files=[file]))
-        if vlcFiles:
-            self.statusBar().showMessage("Found vlc instances.")
-        else:
-            self.statusBar().showMessage("Not found any vlc.")
+        return bool(vlcFiles)
 
+    @changeStatusDec(msg="Position set.")
     def onSetPosition(self):
         """Activate screen rectangle selector"""
         ci = self.tableView.selectionModel().currentIndex()
@@ -216,68 +222,16 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
 
         self.rubberBandActive = True
         self.grabMouse()
-        self.statusBar().showMessage("Position set.")
+        return True
 
+    @changeStatusDec(msg="Configuration redistributed.")
     def onRedistribute(self):
         """Automatically set size and position for vlc"""
         data: List[Row] = list(iter(self.model))
-        # data.reverse()
 
         screen = QApplication.primaryScreen().availableGeometry()
         newPositions = calculatePosition(data, screen.width(), screen.height())
         addOffsets(screen.top(), screen.left(), *newPositions.values())
 
         self.model.setPositionAndSize(newPositions)
-        self.statusBar().showMessage("Configuration redistributed.")
-
-    def onStart(self):
-        """Run model files in vlc processes"""
-        running = self.processController.isRunning()
-        if running:
-            self.actionPause.triggered.emit(False)
-            self.actionPause.setChecked(False)
-            return
-
-        self.onClose()
-
-        self.model.beginResetModel()
-        self._runProcess()
-        self.model.endResetModel()
-
-        self.actionPause.setChecked(True)
-        self.raise_()
-        self.statusBar().showMessage("Vlc started.")
-
-    def _runProcess(self):
-        allWid = set(getWid())
-        for row in self.model:
-            row.pid = self.processController.run(row)
-            QThread.msleep(SLEEP_TIME)
-            self.processController.setPause(True, row.pid)
-
-            try:
-                newerWid = set(getWid())
-            except ValueError:
-
-                QThread.msleep(SLEEP_TIME)
-                try:
-                    newerWid = set(getWid())
-                except ValueError as er:
-                    logger.error(er)
-                    continue
-
-            row.wid = list(newerWid - allWid)
-            allWid = newerWid
-            resizeAndMove(row)
-
-    def onPause(self, isPause):
-        """Toggle pause of all vlc"""
-        self.processController.setPause(isPause)
-        self.statusBar().showMessage("Vlc paused.")
-
-    def onClose(self):
-        """Close all vlc processes"""
-        self.actionPause.setChecked(False)
-        self.processController.terminate()
-        self.model.loadJson(self.model.toJson())
-        self.statusBar().showMessage("Vlc closed.")
+        return True
