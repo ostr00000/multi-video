@@ -3,17 +3,15 @@ import os
 from typing import List
 
 from PyQt5 import QtGui
-from PyQt5.QtCore import QUrl, QEvent, QItemSelectionModel, QItemSelection, QModelIndex, \
-    QThread
+from PyQt5.QtCore import QUrl, QEvent, QItemSelectionModel, QItemSelection, QModelIndex
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QApplication
-from multi_vlc.commands import getRunningVlc, resizeAndMove, getWid
-from multi_vlc.const import ALLOWED_EXTENSIONS, SLEEP_TIME
-from multi_vlc.decoators import SlotDecorator, processEventsIterator, changeStatusDec
+from multi_vlc.commands import getRunningVlc
+from multi_vlc.const import ALLOWED_EXTENSIONS
+from multi_vlc.decoators import SlotDecorator, changeStatusDec
 from multi_vlc.process_controller import ProcessController
 from multi_vlc.rubber_band_controller import RubberBandController
 from multi_vlc.settings import settings
-from multi_vlc.spin_box_delegate import SpinBoxDelegate
 from multi_vlc.split_window import calculatePosition, addOffsets
 from multi_vlc.time_status_bar import TimeStatusBar
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
@@ -38,9 +36,6 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self.model = VlcModel(self)
         self.tableView.setModel(self.model)
         self.tableView.setColumnWidth(VlcModel.COL_FILES, 400)
-        self.spinBoxDelegate = SpinBoxDelegate(self)
-        self.tableView.setItemDelegateForColumn(VlcModel.COL_FACTOR_X, self.spinBoxDelegate)
-        self.tableView.setItemDelegateForColumn(VlcModel.COL_FACTOR_Y, self.spinBoxDelegate)
 
         self.lastJson = None
         path = settings.getLastFile()

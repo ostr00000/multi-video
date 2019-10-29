@@ -8,13 +8,26 @@ from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, QRect
 from multi_vlc.split_window import Position
 
 
+class Enum:
+    @classmethod
+    def getDict(cls):
+        return {k: v for k, v in cls.__dict__.items()
+                if k.islower() and not k.startswith('_')}
+
+
 @dataclass
-class Row:
+class DataClass(Enum):
+
+    def replace(self, index: int, val):
+        k, v = list(self.getDict())[index]
+        setattr(self, k, val)
+
+
+@dataclass
+class Row(DataClass):
     files: List[str]
     position: Tuple[int, int] = (0, 0)
     size: Tuple[int, int] = (0, 0)
-    factor_x: int = 1
-    factor_y: int = 1
     pid: int = -1
     wid: List[int] = field(default_factory=list)
     hashId: str = field(default_factory=lambda: uuid.uuid4().__str__())
@@ -33,17 +46,13 @@ class VlcModel(QAbstractTableModel):
     COL_FILES = 0
     COL_POSITION = 1
     COL_SIZE = 2
-    COL_FACTOR_X = 3
-    COL_FACTOR_Y = 4
-    COL_PID = 5
-    COL_WID = 6
+    COL_PID = 3
+    COL_WID = 4
 
     headers = {
         COL_FILES: 'Files',
         COL_POSITION: 'Position (x, y)',
         COL_SIZE: 'Size (x, y)',
-        COL_FACTOR_X: 'Factor x',
-        COL_FACTOR_Y: 'Factor y',
         COL_PID: 'Process id',
         COL_WID: 'Window ids',
     }
@@ -55,10 +64,7 @@ class VlcModel(QAbstractTableModel):
         ]
 
     def flags(self, index: QModelIndex):
-        fl = Qt.ItemIsSelectable | Qt.ItemIsEnabled
-        if index.column() in (VlcModel.COL_FACTOR_X, VlcModel.COL_FACTOR_Y):
-            fl |= Qt.ItemIsEditable
-        return fl
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
     def headerData(self, section: int, orientation: Qt.Orientation, role=None):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -78,20 +84,14 @@ class VlcModel(QAbstractTableModel):
         obj = astuple(row)[index.column()]
         if index.column() == VlcModel.COL_FILES:
             return ','.join(map(os.path.basename, obj))
-        elif index.column() in (VlcModel.COL_FACTOR_X, VlcModel.COL_FACTOR_Y):
-            return obj
+
         return str(obj)
 
     def setData(self, index: QModelIndex, value, role: int = ...):
-        if role != Qt.EditRole:
+        if role != Qt.UserRole:
             return False
 
-        if index.column() == VlcModel.COL_FACTOR_X:
-            self._data[index.row()].factor_x = value
-        elif index.column() == VlcModel.COL_FACTOR_Y:
-            self._data[index.row()].factor_y = value
-        else:
-            return False
+        self._data[index.row()].replace(index.column(), value)
         return True
 
     def moveRow(self, sourceParent: QModelIndex, sourceRow: int, destinationParent: QModelIndex,

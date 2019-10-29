@@ -3,7 +3,7 @@ import traceback
 import types
 from typing import Iterator, TypeVar
 
-from PyQt5.QtCore import QObject, QCoreApplication, QAbstractTableModel
+from PyQt5.QtCore import QObject, QCoreApplication, QAbstractTableModel, Qt
 from decorator import decorator
 
 _A = TypeVar('_A')
@@ -58,10 +58,12 @@ def changeStatusDec(fun, msg: str = '', failureMsg='', *args, **kwargs):
     return val
 
 
-def modelResetIterator(model: QAbstractTableModel, it: Iterator[_A]) -> Iterator[_A]:
-    model.beginResetModel()
-    yield from it
-    model.endResetModel()
+def dataChangeIterator(it: Iterator[_A], model: QAbstractTableModel, *columns: int) -> Iterator[_A]:
+    for i, data in enumerate(it):
+        yield data
+        for column in columns:
+            model.dataChanged.emit(
+                model.index(i, column), model.index(i, column), (Qt.DisplayRole,))
 
 
 def processEventsIterator(it: Iterator[_A]) -> Iterator[_A]:

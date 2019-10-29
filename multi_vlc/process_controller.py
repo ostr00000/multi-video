@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, List
 from PyQt5.QtCore import QObject, pyqtSlot, QThread
 from commands import getWid, resizeAndMove
 from const import SLEEP_TIME
-from decoators import changeStatusDec, SlotDecorator, processEventsIterator, modelResetIterator
+from decoators import changeStatusDec, SlotDecorator, processEventsIterator, dataChangeIterator
 from multi_vlc.vlc_model import Row
 
 if TYPE_CHECKING:
@@ -59,7 +59,8 @@ class ProcessController(QObject, metaclass=SlotDecorator):
         p: 'VlcWindow' = self.parent()
         windowCollector = WindowCollector()
 
-        for row in modelResetIterator(p.model, processEventsIterator(p.model)):  # type: Row
+        for row in dataChangeIterator(processEventsIterator(p.model), p.model,
+                                      p.model.COL_PID, p.model.COL_WID):  # type: Row
             popen = self._runProcess(row)
             self._processes.append(popen)
             QThread.msleep(SLEEP_TIME)
