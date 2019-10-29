@@ -9,7 +9,6 @@ To find, move and resize window position 'xdotool' is used.
 After vlc start, it is awaited short time on vlc windows initialization.
 
 Tested on VLC version:
- - 3.0.6 Vetinari (3.0.6-0-g5803e85)
  - 4.0.0-dev Otto Chriek
 
 #### Usage:
