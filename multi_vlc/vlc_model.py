@@ -5,7 +5,7 @@ from dataclasses import dataclass, field, astuple, asdict
 from typing import Tuple, List, Dict
 
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, QRect
-from util.split_window import Position
+from multi_vlc.util.split_window import Position
 
 
 class Enum:
