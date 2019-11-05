@@ -19,3 +19,10 @@ Tested on VLC version:
 
 ####Warning:
 IN VLC settings minimal interface must be disabled
+
+### installation
+PyQt5 must be installed before multi_vlc
+```bash
+python -m pip install PyQt5
+python setup.py install
+```
