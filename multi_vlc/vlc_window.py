@@ -6,6 +6,7 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import QUrl, QEvent, QItemSelectionModel, QItemSelection, QModelIndex
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QApplication
+
 from multi_vlc.const import ALLOWED_EXTENSIONS
 from multi_vlc.qobjects.process_controller import ProcessController
 from multi_vlc.qobjects.rubber_band_controller import RubberBandController
@@ -42,6 +43,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         if path:
             self.loadConfiguration(path)
 
+    # noinspection DuplicatedCode
     def _connectButtons(self):
         self.actionNew.triggered.connect(self.onNew)
         self.actionSave_As.triggered.connect(self.onSaveAs)
@@ -74,7 +76,8 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         try:
             with open(path) as file:
                 jsonObj = file.read()
-        except FileNotFoundError:
+        except OSError as e:
+            logger.info(e)
             settings.saveLastFile('')
             return
 
@@ -97,8 +100,14 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
 
             ext = os.path.splitext(url.path())[1][1:].lower()
             if ext not in ALLOWED_EXTENSIONS:
-                continue
+                if ext == 'json' and len(urls) == 1:
+                    self.loadConfiguration(url.path())
+                    break
+                else:
+                    continue
+
             valid.append(url.path())
+
         if valid:
             self.model.appendRow(Row(valid))
             self.statusBar().showMessage("Files added.")
