@@ -60,17 +60,25 @@ class ProcessController(QObject, metaclass=SlotDecorator):
         p: 'VlcWindow' = self.parent()
         windowCollector = WindowCollector()
 
+        loop = QEventLoop()
         for row in dataChangeIterator(processEventsIterator(p.model), p.model,
                                       p.model.COL_PID, p.model.COL_WID):  # type: Row
+            if not self._isStarting:
+                return
+
             popen = self._runProcess(row)
             self._processes.append(popen)
-            QThread.msleep(SLEEP_TIME)
-            self.onPause(True, popen)
+            p.show()
+            p.raise_()
+
+            QTimer.singleShot(SLEEP_TIME, loop.quit)
+            loop.exec()
 
             row.pid = popen.pid
             row.wid = windowCollector.getNewWindowId()
 
             resizeAndMove(row)
+            self.onPause(True, popen)
 
         p.raise_()
 
@@ -89,6 +97,7 @@ class ProcessController(QObject, metaclass=SlotDecorator):
 
         if process is None:
             self.parent().actionPause.setChecked(isPause)
+            self._isStarting = False
             return isPause
 
     @pyqtSlot()
