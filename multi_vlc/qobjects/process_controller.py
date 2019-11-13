@@ -2,7 +2,7 @@ import logging
 from subprocess import Popen, PIPE
 from typing import TYPE_CHECKING, List
 
-from PyQt5.QtCore import QObject, pyqtSlot, QThread
+from PyQt5.QtCore import QObject, pyqtSlot, QThread, QEventLoop, QTimer
 from multi_vlc.const import SLEEP_TIME
 from multi_vlc.util.commands import getWid, resizeAndMove
 from multi_vlc.util.decoators import changeStatusDec, SlotDecorator, processEventsIterator, \
@@ -74,6 +74,13 @@ class ProcessController(QObject, metaclass=SlotDecorator):
 
         p.raise_()
 
+    @staticmethod
+    def _runProcess(row: Row):
+        files = ' '.join(f"'{f}'" for f in row.files)
+        cmd = f'vlc --intf qt --extraintf rc --qt-minimal-view --started-from-file {files}'
+        logger.debug(cmd)
+        return Popen(cmd, shell=True, stderr=PIPE, stdout=PIPE, stdin=PIPE)
+
     @pyqtSlot(bool)
     @changeStatusDec(msg="Vlc paused.", failureMsg="Vlc resumed.")
     def onPause(self, isPause, process=None):
@@ -93,14 +100,6 @@ class ProcessController(QObject, metaclass=SlotDecorator):
         self._sendCommand(b'quit\n')
         self._processes = []
         return True
-
-    @staticmethod
-    def _runProcess(row: Row):
-        files = ' '.join(f"'{f}'" for f in row.files)
-        # --qt-minimal-view  not work as expected
-        cmd = f'vlc --intf qt --extraintf rc --started-from-file {files}'
-        logger.debug(cmd)
-        return Popen(cmd, shell=True, stderr=PIPE, stdout=PIPE, stdin=PIPE)
 
     def _sendCommand(self, command, process=None):
         processes = [process] if process else self._processes

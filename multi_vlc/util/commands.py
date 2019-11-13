@@ -44,7 +44,7 @@ def getWid():
 
 def resizeAndMove(row: Row):
     commands = []
-    for wid in row.wid:
+    for wid in row.wid[:6]:  # unknown order of layer - may shadow qt interface
         commands.append(f'xdotool windowsize {wid} {row.size[0]} {row.size[1]}')
         commands.append(f'xdotool windowmove {wid} {row.position[0]} {row.position[1]}')
 
