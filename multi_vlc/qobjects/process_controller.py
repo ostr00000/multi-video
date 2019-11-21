@@ -1,12 +1,12 @@
 import logging
-from subprocess import Popen, PIPE
-from typing import TYPE_CHECKING, List
+from subprocess import PIPE, Popen
+from typing import List, TYPE_CHECKING
 
-from PyQt5.QtCore import QObject, pyqtSlot, QThread, QEventLoop, QTimer
+from PyQt5.QtCore import QEventLoop, QObject, QThread, QTimer, pyqtSlot
+
 from multi_vlc.const import SLEEP_TIME
 from multi_vlc.util.commands import getWid, resizeAndMove
-from multi_vlc.util.decoators import changeStatusDec, SlotDecorator, processEventsIterator, \
-    dataChangeIterator
+from multi_vlc.util.decoators import SlotDecorator, changeStatusDec, dataChangeIterator, processEventsIterator
 from multi_vlc.vlc_model import Row
 
 if TYPE_CHECKING:
@@ -50,14 +50,19 @@ class ProcessController(QObject, metaclass=SlotDecorator):
 
         if self._processes:
             self.onPause(isPause=False)
+            self.parent().lower()
             return
 
         self._isStarting = True
         self._runAll()
         self._isStarting = False
 
+    # noinspection PyTypeChecker
+    def parent(self) -> 'VlcWindow':
+        return super().parent()
+
     def _runAll(self):
-        p: 'VlcWindow' = self.parent()
+        p = self.parent()
         windowCollector = WindowCollector()
 
         loop = QEventLoop()
@@ -66,19 +71,19 @@ class ProcessController(QObject, metaclass=SlotDecorator):
             if not self._isStarting:
                 return
 
-            popen = self._runProcess(row)
-            self._processes.append(popen)
+            process = self._runProcess(row)
+            self._processes.append(process)
             p.show()
             p.raise_()
 
             QTimer.singleShot(SLEEP_TIME, loop.quit)
             loop.exec()
 
-            row.pid = popen.pid
+            row.pid = process.pid
             row.wid = windowCollector.getNewWindowId()
 
             resizeAndMove(row)
-            self.onPause(True, popen)
+            self.onPause(True, process)
 
         p.raise_()
 
