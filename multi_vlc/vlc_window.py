@@ -37,11 +37,16 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
         self.model = VlcModel(self)
         self.tableView.setModel(self.model)
         self.tableView.setColumnWidth(VlcModel.COL_FILES, 400)
+        self.tableView.selectionModel().selectionChanged.connect(self._showSelectedCount)
 
         self.lastJson = None
         path = settings.getLastFile()
         if path:
             self.loadConfiguration(path)
+
+    def _showSelectedCount(self):
+        rows = len(self.tableView.selectionModel().selectedRows())
+        self.statusBar().showMessage(f"Selected {rows} rows")
 
     # noinspection DuplicatedCode
     def _connectButtons(self):
@@ -114,7 +119,6 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
 
     def closeEvent(self, a0: QtGui.QCloseEvent):
         self.processController.onStop()
-        # self.model.loadJson(self.model.toJson())
         super().closeEvent(a0)
 
     def onNew(self):
@@ -209,7 +213,7 @@ class VlcWindow(QMainWindow, RubberBandController, Ui_VlcMainWindow,
             self.model.appendRow(Row(files=[file]))
         return bool(vlcFiles)
 
-    @changeStatusDec(msg="Position set.")
+    @changeStatusDec(msg="Set position.")
     def onSetPosition(self):
         """Activate screen rectangle selector"""
         ci = self.tableView.selectionModel().currentIndex()

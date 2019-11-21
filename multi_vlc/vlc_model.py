@@ -59,9 +59,7 @@ class VlcModel(QAbstractTableModel):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self._data: List[Row] = [
-
-        ]
+        self._data: List[Row] = []
 
     def flags(self, index: QModelIndex):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
