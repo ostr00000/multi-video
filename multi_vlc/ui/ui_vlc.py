@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'src/ui/vlc.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_VlcMainWindow(object):
     def setupUi(self, VlcMainWindow):
@@ -29,9 +31,6 @@ class Ui_VlcMainWindow(object):
         self.tableView.horizontalHeader().setStretchLastSection(True)
         self.gridLayout.addWidget(self.tableView, 0, 0, 1, 1)
         VlcMainWindow.setCentralWidget(self.centralwidget)
-        self.toolBar = QtWidgets.QToolBar(VlcMainWindow)
-        self.toolBar.setObjectName("toolBar")
-        VlcMainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.statusBarObj = QtWidgets.QStatusBar(VlcMainWindow)
         self.statusBarObj.setObjectName("statusBarObj")
         VlcMainWindow.setStatusBar(self.statusBarObj)
@@ -45,6 +44,9 @@ class Ui_VlcMainWindow(object):
         self.menu_Position = QtWidgets.QMenu(self.menuBar)
         self.menu_Position.setObjectName("menu_Position")
         VlcMainWindow.setMenuBar(self.menuBar)
+        self.toolBar = QtWidgets.QToolBar(VlcMainWindow)
+        self.toolBar.setObjectName("toolBar")
+        VlcMainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actionAdd = QtWidgets.QAction(VlcMainWindow)
         icon = QtGui.QIcon.fromTheme("list-add")
         self.actionAdd.setIcon(icon)
@@ -107,28 +109,13 @@ class Ui_VlcMainWindow(object):
         icon = QtGui.QIcon.fromTheme("document-new")
         self.actionNew.setIcon(icon)
         self.actionNew.setObjectName("actionNew")
-        self.toolBar.addAction(self.actionNew)
-        self.toolBar.addAction(self.actionSave_As)
-        self.toolBar.addAction(self.actionSave)
-        self.toolBar.addAction(self.actionLoad)
-        self.toolBar.addSeparator()
-        self.toolBar.addAction(self.actionAdd)
-        self.toolBar.addAction(self.actionDelete)
-        self.toolBar.addAction(self.actionMove_Down)
-        self.toolBar.addAction(self.actionMove_Up)
-        self.toolBar.addAction(self.actionReset)
-        self.toolBar.addSeparator()
-        self.toolBar.addAction(self.actionFind_Opened)
-        self.toolBar.addAction(self.actionSet_Position)
-        self.toolBar.addAction(self.actionAssign)
-        self.toolBar.addSeparator()
-        self.toolBar.addAction(self.actionStart)
-        self.toolBar.addAction(self.actionPause)
-        self.toolBar.addAction(self.actionClose)
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionLoad)
+        self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_As)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionReset)
         self.menuVideo.addAction(self.actionAdd)
         self.menuVideo.addAction(self.actionDelete)
         self.menuVideo.addAction(self.actionMove_Down)
@@ -143,6 +130,23 @@ class Ui_VlcMainWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
         self.menuBar.addAction(self.menuVideo.menuAction())
         self.menuBar.addAction(self.menu_Position.menuAction())
+        self.toolBar.addAction(self.actionNew)
+        self.toolBar.addAction(self.actionReset)
+        self.toolBar.addAction(self.actionLoad)
+        self.toolBar.addAction(self.actionSave)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.actionAdd)
+        self.toolBar.addAction(self.actionDelete)
+        self.toolBar.addAction(self.actionMove_Down)
+        self.toolBar.addAction(self.actionMove_Up)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.actionFind_Opened)
+        self.toolBar.addAction(self.actionSet_Position)
+        self.toolBar.addAction(self.actionAssign)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.actionStart)
+        self.toolBar.addAction(self.actionPause)
+        self.toolBar.addAction(self.actionClose)
 
         self.retranslateUi(VlcMainWindow)
         QtCore.QMetaObject.connectSlotsByName(VlcMainWindow)
@@ -150,15 +154,16 @@ class Ui_VlcMainWindow(object):
     def retranslateUi(self, VlcMainWindow):
         _translate = QtCore.QCoreApplication.translate
         VlcMainWindow.setWindowTitle(_translate("VlcMainWindow", "VLC Manager"))
-        self.toolBar.setWindowTitle(_translate("VlcMainWindow", "toolBar"))
         self.menuFile.setTitle(_translate("VlcMainWindow", "&File"))
         self.menuVideo.setTitle(_translate("VlcMainWindow", "&Video"))
         self.menu_Position.setTitle(_translate("VlcMainWindow", "&Position"))
+        self.toolBar.setWindowTitle(_translate("VlcMainWindow", "toolBar"))
         self.actionAdd.setText(_translate("VlcMainWindow", "&Add"))
         self.actionDelete.setText(_translate("VlcMainWindow", "&Delete"))
         self.actionDelete.setShortcut(_translate("VlcMainWindow", "Del"))
-        self.actionReset.setText(_translate("VlcMainWindow", "Reset"))
-        self.actionLoad.setText(_translate("VlcMainWindow", "&Load"))
+        self.actionReset.setText(_translate("VlcMainWindow", "&Reset"))
+        self.actionLoad.setText(_translate("VlcMainWindow", "&Open"))
+        self.actionLoad.setToolTip(_translate("VlcMainWindow", "Open"))
         self.actionLoad.setShortcut(_translate("VlcMainWindow", "Ctrl+O"))
         self.actionSave.setText(_translate("VlcMainWindow", "&Save"))
         self.actionSave.setShortcut(_translate("VlcMainWindow", "Ctrl+S"))
@@ -178,7 +183,6 @@ class Ui_VlcMainWindow(object):
         self.actionMove_Down.setText(_translate("VlcMainWindow", "&Move Down"))
         self.actionMove_Up.setText(_translate("VlcMainWindow", "Move &Up"))
         self.actionMove_Up.setToolTip(_translate("VlcMainWindow", "Move Up"))
-        self.actionNew.setText(_translate("VlcMainWindow", "New"))
+        self.actionNew.setText(_translate("VlcMainWindow", "&New"))
         self.actionNew.setShortcut(_translate("VlcMainWindow", "Ctrl+N"))
-
 from . import resources_rc

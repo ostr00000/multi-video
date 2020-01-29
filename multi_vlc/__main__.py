@@ -9,7 +9,7 @@ def main():
     mainLogger.setLevel(logging.DEBUG)
 
     from PyQt5.QtWidgets import QApplication
-    from multi_vlc.vlc_window import VlcWindow
+    from multi_vlc.vlc_window.main import VlcWindow
 
     app = QApplication([])
     app.setApplicationName(appName)

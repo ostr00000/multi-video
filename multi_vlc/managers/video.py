@@ -1,48 +1,35 @@
 import logging
-from subprocess import PIPE, Popen
-from typing import List, TYPE_CHECKING
+from subprocess import Popen, PIPE
+from typing import List
 
-from PyQt5.QtCore import QEventLoop, QObject, QThread, QTimer, pyqtSlot
+from PyQt5 import QtGui
+from PyQt5.QtCore import QEventLoop, QTimer
 
-from multi_vlc.const import SLEEP_TIME
-from multi_vlc.util.commands import getWid, resizeAndMove
-from multi_vlc.util.decoators import SlotDecorator, changeStatusDec, dataChangeIterator, processEventsIterator
-from multi_vlc.vlc_model import Row
-
-if TYPE_CHECKING:
-    from vlc_window import VlcWindow
+from const import SLEEP_TIME
+from qobjects.time_status_bar import changeStatusDec
+from qobjects.window_collector import WindowCollector
+from util.commands import runCommand
+from util.iterator_wrappers import dataChangeIterator, processEventsIterator
+from vlc_model import Row
+from vlc_window.base import BaseWindow
 
 logger = logging.getLogger(__name__)
 
 
-class WindowCollector:
-    def __init__(self):
-        self.allWid = set(getWid())
+class VideoManager(BaseWindow):
+    def __init__(self, *args):
+        super().__init__(*args)
 
-    def getNewWindowId(self):
-        try:
-            newerWid = set(getWid())
-        except ValueError:
-            QThread.msleep(SLEEP_TIME)
-            try:
-                newerWid = set(getWid())
-            except ValueError as er:
-                logger.error(er)
-                return []
-
-        ret = list(newerWid - self.allWid)
-        self.allWid = newerWid
-        return ret
-
-
-class ProcessController(QObject, metaclass=SlotDecorator):
-
-    def __init__(self, parent: 'VlcWindow'):
-        super().__init__(parent)
         self._processes: List[Popen] = []
         self._isStarting = False
 
-    @pyqtSlot()
+    def _connectButtons(self):
+        super()._connectButtons()
+
+        self.actionStart.triggered.connect(self.onStart)
+        self.actionPause.triggered.connect(self.onPause)
+        self.actionClose.triggered.connect(self.onStop)
+
     @changeStatusDec(msg="Vlc started.")
     def onStart(self):
         if self._isStarting:
@@ -50,31 +37,29 @@ class ProcessController(QObject, metaclass=SlotDecorator):
 
         if self._processes:
             self.onPause(isPause=False)
-            self.parent().lower()
+            self.lower()
             return
 
         self._isStarting = True
         self._runAll()
         self._isStarting = False
 
-    # noinspection PyTypeChecker
-    def parent(self) -> 'VlcWindow':
-        return super().parent()
-
     def _runAll(self):
-        p = self.parent()
         windowCollector = WindowCollector()
-
         loop = QEventLoop()
-        for row in dataChangeIterator(processEventsIterator(p.model), p.model,
-                                      p.model.COL_PID, p.model.COL_WID):  # type: Row
+
+        for row in dataChangeIterator(
+                processEventsIterator(self.model),
+                self.model, self.model.COL_PID, self.model.COL_WID):  # type: Row
+
             if not self._isStarting:
                 return
 
             process = self._runProcess(row)
             self._processes.append(process)
-            p.show()
-            p.raise_()
+
+            self.show()
+            self.raise_()
 
             QTimer.singleShot(SLEEP_TIME, loop.quit)
             loop.exec()
@@ -82,10 +67,20 @@ class ProcessController(QObject, metaclass=SlotDecorator):
             row.pid = process.pid
             row.wid = windowCollector.getNewWindowId()
 
-            resizeAndMove(row)
+            self.resizeAndMove(row)
             self.onPause(True, process)
 
-        p.raise_()
+        self.raise_()
+
+    @staticmethod
+    def resizeAndMove(row: Row):
+        commands = []
+        for wid in row.wid[:6]:  # unknown order of layer - may shadow qt interface
+            commands.append(f'xdotool windowsize {wid} {row.size[0]} {row.size[1]}')
+            commands.append(f'xdotool windowmove {wid} {row.position[0]} {row.position[1]}')
+
+        commandsStr = ' && '.join(commands)
+        runCommand(commandsStr)
 
     @staticmethod
     def _runProcess(row: Row):
@@ -94,22 +89,20 @@ class ProcessController(QObject, metaclass=SlotDecorator):
         logger.debug(cmd)
         return Popen(cmd, shell=True, stderr=PIPE, stdout=PIPE, stdin=PIPE)
 
-    @pyqtSlot(bool)
     @changeStatusDec(msg="Vlc paused.", failureMsg="Vlc resumed.")
     def onPause(self, isPause, process=None):
         action = b"pause\n" if isPause else b"play\n"
         self._sendCommand(action, process)
 
         if process is None:
-            self.parent().actionPause.setChecked(isPause)
+            self.actionPause.setChecked(isPause)
             self._isStarting = False
             return isPause
 
-    @pyqtSlot()
     @changeStatusDec(msg="Vlc closed.")
     def onStop(self):
         self._isStarting = False
-        self.parent().actionPause.setChecked(False)
+        self.actionPause.setChecked(False)
 
         self._sendCommand(b'quit\n')
         self._processes = []
@@ -130,3 +123,7 @@ class ProcessController(QObject, metaclass=SlotDecorator):
 
         if not process:
             self._processes = valid
+
+    def closeEvent(self, a0: QtGui.QCloseEvent):
+        self.onStop()
+        super().closeEvent(a0)
