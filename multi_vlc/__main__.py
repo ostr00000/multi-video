@@ -1,6 +1,6 @@
 import logging
 
-from multi_vlc import moduleName, appName
+from multi_vlc import moduleName, appName, appDisplayName
 
 
 def main():
@@ -13,6 +13,7 @@ def main():
 
     app = QApplication([])
     app.setApplicationName(appName)
+    app.setApplicationDisplayName(appDisplayName)
 
     vw = VlcWindow()
     vw.show()

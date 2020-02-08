@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QMainWindow
 
 from multi_vlc.qobjects.time_status_bar import TimeStatusBar
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
-from util.log_metaclass import SlotDecorator
+from multi_vlc.util.log_metaclass import SlotDecorator
 from multi_vlc.vlc_model import VlcModel
 
 logger = logging.getLogger(__name__)

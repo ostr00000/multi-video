@@ -17,8 +17,8 @@ Tested on VLC version:
 2. Save configuration
 3. Run vlc instances
 
-####Warning:
-IN VLC settings minimal interface must be disabled
+#### Warning:
+In VLC settings minimal interface must be disabled.
 
 ### installation
 PyQt5 must be installed before multi_vlc

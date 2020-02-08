@@ -2,9 +2,9 @@ import logging
 
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
-from qobjects.settings import settings
-from qobjects.time_status_bar import changeStatusDec
-from vlc_window.base import BaseWindow
+from multi_vlc.qobjects.settings import settings
+from multi_vlc.qobjects.time_status_bar import changeStatusDec
+from multi_vlc.vlc_window.base import BaseWindow
 
 logger = logging.getLogger(__name__)
 

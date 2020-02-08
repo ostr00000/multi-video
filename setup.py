@@ -7,7 +7,7 @@ setup(
     description='Tool to run many vlc at same time on early prepared position.',
     packages=find_packages(exclude=("*test*",)),
     entry_points={'console_scripts': [
-        'multi-vlc = multi_vlc.starter:main',
+        'multi-vlc = multi_vlc.__main__:main',
     ]},
-    install_requires=['PyQt5', 'decorator'],
+    install_requires=['PyQt5', 'decorator', 'boltons'],
 )

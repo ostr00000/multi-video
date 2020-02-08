@@ -1,10 +1,10 @@
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtWidgets import QFileDialog
 
-from const import ALLOWED_EXTENSIONS
-from qobjects.time_status_bar import changeStatusDec
-from vlc_model import Row
-from vlc_window.base import BaseWindow
+from multi_vlc.const import ALLOWED_EXTENSIONS
+from multi_vlc.qobjects.time_status_bar import changeStatusDec
+from multi_vlc.vlc_model import Row
+from multi_vlc.vlc_window.base import BaseWindow
 
 
 class ModelManagement(BaseWindow):

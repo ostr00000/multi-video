@@ -3,10 +3,10 @@ import os
 
 from PyQt5 import QtGui
 
-from const import ALLOWED_EXTENSIONS
-from managers.save_file import SaveFileManager
-from qobjects.time_status_bar import changeStatusDec
-from vlc_model import Row
+from multi_vlc.const import ALLOWED_EXTENSIONS
+from multi_vlc.managers.save_file import SaveFileManager
+from multi_vlc.qobjects.time_status_bar import changeStatusDec
+from multi_vlc.vlc_model import Row
 
 logger = logging.getLogger(__name__)
 

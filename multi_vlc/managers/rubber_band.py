@@ -5,9 +5,9 @@ from PyQt5.QtCore import QPoint, Qt, QRect, QItemSelection, QItemSelectionModel,
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QRubberBand, QToolButton, QMessageBox
 
-from qobjects.time_status_bar import changeStatusDec
-from vlc_model import VlcModel
-from vlc_window.base import BaseWindow
+from multi_vlc.qobjects.time_status_bar import changeStatusDec
+from multi_vlc.vlc_model import VlcModel
+from multi_vlc.vlc_window.base import BaseWindow
 
 
 class RubberBandManager(BaseWindow):
