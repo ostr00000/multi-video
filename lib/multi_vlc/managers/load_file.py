@@ -2,14 +2,14 @@ import logging
 
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
+from multi_vlc.managers.safe_close import SafeCloseManager
 from multi_vlc.qobjects.settings import settings
 from multi_vlc.qobjects.time_status_bar import changeStatusDec
-from multi_vlc.vlc_window.base import BaseWindow
 
 logger = logging.getLogger(__name__)
 
 
-class LoadFileManager(BaseWindow):
+class LoadFileManager(SafeCloseManager):
     def __init__(self, *args):
         super().__init__(*args)
         self.lastJson = None
@@ -24,6 +24,7 @@ class LoadFileManager(BaseWindow):
         self.actionLoad.triggered.connect(self.onLoad)
         self.actionReset.triggered.connect(self.onReset)
 
+    @SafeCloseManager.takeActionIfUnsavedChangesDec
     @changeStatusDec(msg="Configuration loaded.")
     def _loadConfiguration(self, path):
         try:
@@ -38,10 +39,12 @@ class LoadFileManager(BaseWindow):
         self.model.loadJson(jsonObj)
         settings.saveLastFile(path)
 
+    @SafeCloseManager.takeActionIfUnsavedChangesDec
     def onNew(self):
         """Create new model"""
         self.model.loadJson('[]')
 
+    @SafeCloseManager.takeActionIfUnsavedChangesDec
     def onLoad(self):
         """Load model from file"""
         filePath, _ext = QFileDialog.getOpenFileName(
