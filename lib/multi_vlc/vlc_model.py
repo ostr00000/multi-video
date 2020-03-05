@@ -7,7 +7,7 @@ from typing import Tuple, List, Dict
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, QRect, pyqtSignal, pyqtProperty
 from decorator import decorator
 
-from multi_vlc.util.split_window import Position
+from multi_vlc.utils.split_window import Position
 
 
 class Enum:

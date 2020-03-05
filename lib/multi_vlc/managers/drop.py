@@ -4,14 +4,14 @@ import os
 from PyQt5 import QtGui
 
 from multi_vlc.const import ALLOWED_EXTENSIONS
-from multi_vlc.managers.save_file import SaveFileManager
+from multi_vlc.managers.load_file import LoadFileManager
 from multi_vlc.qobjects.time_status_bar import changeStatusDec
 from multi_vlc.vlc_model import Row
 
 logger = logging.getLogger(__name__)
 
 
-class DropManager(SaveFileManager):
+class DropManager(LoadFileManager):
     def __init__(self, *args):
         super().__init__(*args)
         self.setAcceptDrops(True)
@@ -43,7 +43,7 @@ class DropManager(SaveFileManager):
                 if ext in ALLOWED_EXTENSIONS:
                     valid.append(path)
                 elif ext == 'json' and len(urls) == 1:
-                    self.loadConfiguration(path)
+                    self._loadConfiguration(path)
                     return
 
         if valid:

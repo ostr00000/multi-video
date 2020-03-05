@@ -13,8 +13,8 @@ from multi_vlc import appName
 from multi_vlc.const import SLEEP_TIME
 from multi_vlc.qobjects.time_status_bar import changeStatusDec
 from multi_vlc.qobjects.window_collector import WindowCollector
-from multi_vlc.util.commands import runCommand
-from multi_vlc.util.iterator_wrappers import dataChangeIterator, processEventsIterator
+from multi_vlc.utils.commands import runCommand
+from multi_vlc.utils.iterator_wrappers import dataChangeIterator, processEventsIterator
 from multi_vlc.vlc_model import Row
 from multi_vlc.vlc_window.base import BaseWindow
 

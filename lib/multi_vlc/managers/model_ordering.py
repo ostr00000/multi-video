@@ -29,8 +29,7 @@ class ModelManagement(BaseWindow):
     @changeStatusDec(msg="Rows deleted.")
     def onDelete(self):
         """Delete selected row"""
-        rows = self.tableView.selectionModel().selectedRows()
-        if rows:
+        if rows := self.tableView.selectionModel().selectedRows():
             for r in sorted(rows, key=lambda i: i.row(), reverse=True):  # type: QModelIndex
                 self.model.removeRow(r.row())
             return True

@@ -3,7 +3,7 @@ import logging
 from PyQt5.QtCore import QThread
 
 from multi_vlc.const import SLEEP_TIME
-from multi_vlc.util.commands import runCommand
+from multi_vlc.utils.commands import runCommand
 
 logger = logging.getLogger(__name__)
 
