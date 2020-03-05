@@ -9,5 +9,6 @@ setup(
     entry_points={'console_scripts': [
         'multi-vlc = multi_vlc.__main__:main',
     ]},
+    package_dir={"": "lib"},
     install_requires=['PyQt5', 'decorator', 'boltons'],
 )

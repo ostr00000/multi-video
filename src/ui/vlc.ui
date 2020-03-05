@@ -198,9 +198,6 @@
    <property name="text">
     <string>&amp;Set Position</string>
    </property>
-   <property name="shortcut">
-    <string>S</string>
-   </property>
   </action>
   <action name="actionStart">
    <property name="icon">

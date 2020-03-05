@@ -4,7 +4,7 @@ UIC=pyuic5
 RCC=pyrcc5
 
 UI_DIR=src/ui
-COMPILED_UI_DIR=$(MAIN_PACKAGE_NAME)/ui
+COMPILED_UI_DIR=lib/$(MAIN_PACKAGE_NAME)/ui
 RESOURCES=src/resources.qrc
 ####################################
 

@@ -4,8 +4,8 @@ from typing import List
 from PyQt5.QtWidgets import QApplication
 
 from multi_vlc.const import ALLOWED_EXTENSIONS
-from multi_vlc.util.commands import runCommand
 from multi_vlc.qobjects.time_status_bar import changeStatusDec
+from multi_vlc.util.commands import runCommand
 from multi_vlc.util.split_window import calculatePosition, addOffsets
 from multi_vlc.vlc_model import Row
 from multi_vlc.vlc_window.base import BaseWindow
