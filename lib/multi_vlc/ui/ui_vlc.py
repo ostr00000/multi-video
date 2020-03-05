@@ -153,7 +153,7 @@ class Ui_VlcMainWindow(object):
 
     def retranslateUi(self, VlcMainWindow):
         _translate = QtCore.QCoreApplication.translate
-        VlcMainWindow.setWindowTitle(_translate("VlcMainWindow", "VLC Manager"))
+        VlcMainWindow.setWindowTitle(_translate("VlcMainWindow", "[*]VLC Manager[*]"))
         self.menuFile.setTitle(_translate("VlcMainWindow", "&File"))
         self.menuVideo.setTitle(_translate("VlcMainWindow", "&Video"))
         self.menu_Position.setTitle(_translate("VlcMainWindow", "&Position"))
@@ -170,7 +170,6 @@ class Ui_VlcMainWindow(object):
         self.actionFind_Opened.setText(_translate("VlcMainWindow", "&Find Opened"))
         self.actionFind_Opened.setToolTip(_translate("VlcMainWindow", "Find Opened"))
         self.actionSet_Position.setText(_translate("VlcMainWindow", "&Set Position"))
-        self.actionSet_Position.setShortcut(_translate("VlcMainWindow", "S"))
         self.actionStart.setText(_translate("VlcMainWindow", "&Start"))
         self.actionClose.setText(_translate("VlcMainWindow", "&Close"))
         self.actionClose.setShortcut(_translate("VlcMainWindow", "Ctrl+Esc"))
@@ -185,4 +184,3 @@ class Ui_VlcMainWindow(object):
         self.actionMove_Up.setToolTip(_translate("VlcMainWindow", "Move Up"))
         self.actionNew.setText(_translate("VlcMainWindow", "&New"))
         self.actionNew.setShortcut(_translate("VlcMainWindow", "Ctrl+N"))
-from . import resources_rc

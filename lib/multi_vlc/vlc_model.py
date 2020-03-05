@@ -4,7 +4,8 @@ import uuid
 from dataclasses import dataclass, field, astuple, asdict
 from typing import Tuple, List, Dict
 
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, QRect
+from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt, QRect, pyqtSignal, pyqtProperty
+from decorator import decorator
 
 from multi_vlc.util.split_window import Position
 
@@ -42,7 +43,37 @@ class Row(DataClass):
         return d
 
 
-class VlcModel(QAbstractTableModel):
+class DirtyModel(QAbstractTableModel):
+    dirtyChanged = pyqtSignal(bool)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._dirty = False
+
+    def getDirty(self):
+        return self._dirty
+
+    def setDirty(self, value: bool):
+        if self._dirty is not value:
+            self._dirty = value
+            self.dirtyChanged.emit(value)
+
+    isDirty = pyqtProperty(bool, getDirty, setDirty, notify=dirtyChanged)
+
+    @staticmethod
+    @decorator
+    def dirtyDec(fun, *args, **kwargs):
+        args[0].isDirty = True
+        return fun(*args, **kwargs)
+
+    @staticmethod
+    @decorator
+    def cleanDec(fun, *args, **kwargs):
+        args[0].isDirty = False
+        return fun(*args, **kwargs)
+
+
+class VlcModel(DirtyModel):
     COL_FILES = 0
     COL_POSITION = 1
     COL_SIZE = 2
@@ -85,6 +116,7 @@ class VlcModel(QAbstractTableModel):
 
         return str(obj)
 
+    @DirtyModel.dirtyDec
     def setData(self, index: QModelIndex, value, role: int = ...):
         if role != Qt.UserRole:
             return False
@@ -92,6 +124,7 @@ class VlcModel(QAbstractTableModel):
         self._data[index.row()].replace(index.column(), value)
         return True
 
+    @DirtyModel.dirtyDec
     def moveRow(self, sourceParent: QModelIndex, sourceRow: int, destinationParent: QModelIndex,
                 destinationChild: int):
         destinationRow = destinationChild + 1 if destinationChild > sourceRow else destinationChild
@@ -101,21 +134,25 @@ class VlcModel(QAbstractTableModel):
         self.endMoveRows()
         return True
 
+    @DirtyModel.dirtyDec
     def appendRow(self, row: Row):
         i = len(self._data)
         self.beginInsertRows(QModelIndex(), i, i)
         self._data.append(row)
         self.endInsertRows()
 
+    @DirtyModel.dirtyDec
     def removeRows(self, row: int, count: int, parent=QModelIndex()):
         self.beginRemoveRows(parent, row, row + count - 1)
         del self._data[row:row + count]
         self.endRemoveRows()
         return True
 
+    @DirtyModel.cleanDec
     def toJson(self):
         return json.dumps([d.toDict() for d in self._data], ensure_ascii=True)
 
+    @DirtyModel.cleanDec
     def loadJson(self, jsonObj):
         self.beginResetModel()
         obj: List = json.loads(jsonObj)

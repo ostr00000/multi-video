@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>VLC Manager</string>
+   <string>[*]VLC Manager[*]</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resources.qrc">

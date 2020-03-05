@@ -37,6 +37,7 @@ class DropManager(SaveFileManager):
                 for file in os.listdir(path):
                     if self.getExtension(file) in ALLOWED_EXTENSIONS:
                         self.model.appendRow(Row([os.path.join(path, file)]))
+                return True
             else:
                 ext = self.getExtension(path)
                 if ext in ALLOWED_EXTENSIONS:

@@ -21,6 +21,7 @@ class BaseWindow(QMainWindow, Ui_VlcMainWindow,
         self.setStatusBar(TimeStatusBar(self))
 
         self.model = VlcModel(self)
+        self.model.dirtyChanged.connect(self.setWindowModified)
         self.tableView.setModel(self.model)
         self.tableView.setColumnWidth(VlcModel.COL_FILES, 400)
         self.tableView.selectionModel().selectionChanged.connect(self._showSelectedCount)
