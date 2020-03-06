@@ -18,8 +18,8 @@ class RubberBandManager(BaseWindow):
         self.rubberBandActive = False
         self.rubberBandStartPos: Optional[QPoint] = None
 
-    def _connectButtons(self):
-        super()._connectButtons()
+    def __post_init__(self):
+        super().__post_init__()
 
         self.actionSet_Position.triggered.connect(self.onSetPosition)
 

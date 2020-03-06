@@ -44,7 +44,7 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusBarObj"/>
-  <widget class="QMenuBar" name="menuBar">
+  <widget class="QMenuBar" name="menuBarObj">
    <property name="geometry">
     <rect>
      <x>0</x>

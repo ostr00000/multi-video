@@ -15,8 +15,8 @@ class PositionManager(BaseWindow):
     VLC_FILE_ARG_PATTERN = re.compile(r'.*vlc.*--started-from-file( \'?.*\.\w+\'?)+')
     FILES_PATTERN = re.compile(r'\'?(.+?\.{ext})\'?'.format(ext='|'.join(ALLOWED_EXTENSIONS)))
 
-    def _connectButtons(self):
-        super()._connectButtons()
+    def __post_init__(self):
+        super().__post_init__()
 
         self.actionFind_Opened.triggered.connect(self.onFindOpened)
         self.actionAssign.triggered.connect(self.onRedistribute)

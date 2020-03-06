@@ -1,18 +1,13 @@
 from PyQt5.QtCore import QSettings
 
+from multi_vlc import orgName, appName
+from pyqt_settings.field.boolean import BoolField
+from pyqt_settings.field.string import StrField
+
 
 class _Settings(QSettings):
-    LAST_PATH = 'lastConfig/path'
-
-    def __init__(self):
-        super().__init__('MultiVlc', 'multi-vlc')
-
-    def saveLastFile(self, path):
-        self.setValue(self.LAST_PATH, path)
-        self.sync()
-
-    def getLastFile(self):
-        return self.value(self.LAST_PATH, defaultValue=None, type=str)
+    LAST_PATH = StrField('lastConfig/path')
+    ASK_TO_SAVE_CHANGED_DATA = BoolField('ask/unsaved', default=True)
 
 
-settings = _Settings()
+settings = _Settings(orgName, appName)

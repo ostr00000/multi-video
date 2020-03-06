@@ -28,8 +28,8 @@ class VideoManager(BaseWindow):
         self._processes: List[Popen] = []
         self._isStarting = False
 
-    def _connectButtons(self):
-        super()._connectButtons()
+    def __post_init__(self):
+        super().__post_init__()
 
         self.actionStart.triggered.connect(self.onStart)
         self.actionPause.triggered.connect(self.onPause)

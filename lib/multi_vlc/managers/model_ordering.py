@@ -8,8 +8,8 @@ from multi_vlc.vlc_window.base import BaseWindow
 
 
 class ModelManagement(BaseWindow):
-    def _connectButtons(self):
-        super()._connectButtons()
+    def __post_init__(self):
+        super().__post_init__()
 
         self.actionAdd.triggered.connect(self.onAdd)
         self.actionDelete.triggered.connect(self.onDelete)

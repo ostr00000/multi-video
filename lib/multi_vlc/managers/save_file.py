@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 
 class SaveFileManager(BaseWindow):
 
-    def _connectButtons(self):
-        super()._connectButtons()
+    def __post_init__(self):
+        super().__post_init__()
 
         self.actionSave_As.triggered.connect(self.onSaveAs)
         self.actionSave.triggered.connect(self.onSave)
@@ -20,7 +20,7 @@ class SaveFileManager(BaseWindow):
     @changeStatusDec(msg="Configuration saved.")
     def onSave(self):
         """Save model to last file"""
-        if filePath := settings.getLastFile():
+        if filePath := settings.LAST_PATH:
             with open(filePath, 'w') as file:
                 file.write(self.model.toJson())
             return True
@@ -37,5 +37,5 @@ class SaveFileManager(BaseWindow):
                 filePath += '.json'
             with open(filePath, 'w') as file:
                 file.write(self.model.toJson())
-            settings.saveLastFile(filePath)
+            settings.LAST_PATH = filePath
             return True

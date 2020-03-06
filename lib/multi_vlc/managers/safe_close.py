@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMessageBox
 from decorator import decorator
 
 from multi_vlc.managers.save_file import SaveFileManager
+from multi_vlc.qobjects.settings import settings
 
 
 class SafeCloseManager(SaveFileManager):
@@ -18,6 +19,9 @@ class SafeCloseManager(SaveFileManager):
     def _takeActionIfUnsavedChanges(self):
         """If cancel return False"""
         if not self.model.isDirty:
+            return True
+
+        if not settings.ASK_TO_SAVE_CHANGED_DATA:
             return True
 
         resultButton = QMessageBox.question(

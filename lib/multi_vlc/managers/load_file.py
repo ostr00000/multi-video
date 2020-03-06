@@ -14,11 +14,11 @@ class LoadFileManager(SafeCloseManager):
         super().__init__(*args)
         self.lastJson = None
 
-        if path := settings.getLastFile():
+        if path := settings.LAST_PATH:
             self._loadConfiguration(path)
 
-    def _connectButtons(self):
-        super()._connectButtons()
+    def __post_init__(self):
+        super().__post_init__()
 
         self.actionNew.triggered.connect(self.onNew)
         self.actionLoad.triggered.connect(self.onLoad)
@@ -32,12 +32,12 @@ class LoadFileManager(SafeCloseManager):
                 jsonObj = file.read()
         except OSError as e:
             logger.info(e)
-            settings.saveLastFile('')
+            settings.LAST_PATH = ''
             return
 
         self.lastJson = jsonObj
         self.model.loadJson(jsonObj)
-        settings.saveLastFile(path)
+        settings.LAST_PATH = path
 
     @SafeCloseManager.takeActionIfUnsavedChangesDec
     def onNew(self):
