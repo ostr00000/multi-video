@@ -1,5 +1,6 @@
 import logging
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow
 
 from multi_vlc.qobjects.settings import settings
@@ -21,7 +22,8 @@ class BaseWindow(QMainWindow, Ui_VlcMainWindow,
         self.retranslateUi(self)
 
         self.setStatusBar(TimeStatusBar(self))
-        self.menuBar().addAction(SettingDialogAction(settings, self))
+        self.menuBar().addAction(SettingDialogAction(
+            settings, icon=QIcon(), parent=self.menuBar()))
 
         self.model = VlcModel(self)
         self.model.dirtyChanged.connect(self.setWindowModified)
