@@ -184,3 +184,4 @@ class Ui_VlcMainWindow(object):
         self.actionMove_Up.setToolTip(_translate("VlcMainWindow", "Move Up"))
         self.actionNew.setText(_translate("VlcMainWindow", "&New"))
         self.actionNew.setShortcut(_translate("VlcMainWindow", "Ctrl+N"))
+from . import resources_rc
