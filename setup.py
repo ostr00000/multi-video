@@ -10,6 +10,9 @@ setup(
         'multi-vlc = multi_vlc.__main__:main',
     ]},
     package_dir={"": "lib"},
-    install_requires=['PyQt5', 'decorator', 'boltons'],
+    install_requires=[
+        'PyQt5', 'decorator', 'boltons',
+        'pyqt-settings @ git+https://github.com/ostr00000/pyqt-settings@master#egg=pyqt-settings',
+    ],
     extras_require={'dev': ['matplotlib']},
 )
