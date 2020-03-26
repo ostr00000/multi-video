@@ -2,7 +2,7 @@ import logging
 from pprint import pformat
 
 import multi_vlc.managers
-from multi_vlc.utils.dynamic_loader import loadClassFromPackage
+from pyqt_utils.python.dynamic_loader import loadClassFromPackage
 
 logger = logging.getLogger(__name__)
 # noinspection PyTypeChecker

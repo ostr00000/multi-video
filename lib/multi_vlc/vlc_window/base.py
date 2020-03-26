@@ -6,9 +6,9 @@ from PyQt5.QtWidgets import QMainWindow
 from multi_vlc.qobjects.settings import settings
 from multi_vlc.qobjects.time_status_bar import TimeStatusBar
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
-from multi_vlc.utils.log_metaclass import SlotDecorator
 from multi_vlc.vlc_model import VlcModel
 from pyqt_settings.action import SettingDialogAction
+from pyqt_utils.slot_decorator import SlotDecorator
 
 logger = logging.getLogger(__name__)
 
