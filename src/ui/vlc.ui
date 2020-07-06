@@ -73,6 +73,7 @@
     <addaction name="actionDelete"/>
     <addaction name="actionMove_Down"/>
     <addaction name="actionMove_Up"/>
+    <addaction name="actionShuffle"/>
     <addaction name="separator"/>
     <addaction name="actionStart"/>
     <addaction name="actionPause"/>
@@ -109,6 +110,7 @@
    <addaction name="actionDelete"/>
    <addaction name="actionMove_Down"/>
    <addaction name="actionMove_Up"/>
+      <addaction name="actionShuffle"/>
    <addaction name="separator"/>
    <addaction name="actionFind_Opened"/>
    <addaction name="actionSet_Position"/>
@@ -280,18 +282,27 @@
     <string>Move Up</string>
    </property>
   </action>
-  <action name="actionNew">
-   <property name="icon">
-    <iconset theme="document-new">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;New</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+N</string>
-   </property>
-  </action>
+     <action name="actionNew">
+         <property name="icon">
+             <iconset theme="document-new">
+                 <normaloff>.</normaloff>.
+             </iconset>
+         </property>
+         <property name="text">
+             <string>&amp;New</string>
+         </property>
+         <property name="shortcut">
+             <string>Ctrl+N</string>
+         </property>
+     </action>
+     <action name="actionShuffle">
+         <property name="icon">
+             <iconset theme="media-playlist-shuffle"/>
+         </property>
+         <property name="text">
+             <string>S&amp;huffle</string>
+         </property>
+     </action>
  </widget>
  <resources>
   <include location="../resources.qrc"/>

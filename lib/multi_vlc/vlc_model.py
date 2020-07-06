@@ -148,6 +148,9 @@ class VlcModel(DirtyModel):
         self.endRemoveRows()
         return True
 
+    def clean(self):
+        self.removeRows(0, len(self._data))
+
     @DirtyModel.cleanDec
     def toJson(self):
         return json.dumps([d.toDict() for d in self._data], ensure_ascii=True)
