@@ -14,5 +14,7 @@ class _Settings(QSettings):
     VIDEO_PLAYER = StrField('video/player', default='vlc')
     VIDEO_PLAYER.widgetFactory = InitArgWidgetFactory(ComboBoxFieldWidget, 'vlc', 'mpv')
 
+    SHUFFLE_INTERNAL_ORDER = BoolField('shuffle/internal', default=True)
+
 
 settings = _Settings(orgName, appName)
