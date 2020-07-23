@@ -1,46 +1,47 @@
-from typing import List
+from typing import List, Dict
 
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtWidgets import QWidget, QGridLayout
 
 from multi_vlc.qobjects.widget.mpv_player import MpvPlayerWidget
+from multi_vlc.utils.split_window import calculatePosition, getMinimumRectangle
 
 
 class MpvPlayerGroupWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._players: List[MpvPlayerWidget] = []
+        self.setAttribute(Qt.WA_DeleteOnClose)
         self._layout = QGridLayout(self)
+        self._players: Dict[int, MpvPlayerWidget] = {}
 
-    #     self.loop = asyncio.new_event_loop()
-    #     self.thread = threading.Thread(target=self._loopRunner, daemon=True)
-    #     self.thread.start()
-    #
-    # def _loopRunner(self):
-    #     try:
-    #         self.loop.run_forever()
-    #     finally:
-    #         self.loop.close()
+    def createSubWidgets(self, iterable):
+        data = list(iterable)
+        rX, rY = getMinimumRectangle(data)
+        positions = calculatePosition(data, rX, rY)
+        for d in data:
+            position = positions[d]
+            position.nonNegativeSize()
+            # print(position.posX, position.posY, position.sizeX, position.sizeY)
+            self.createSubWidget(position.posX, position.posY, position.sizeX, position.sizeY)
 
-    def createWidget(self, filename: str):
-        # pl = MpvPlayerWidget(self, self.loop)
+    # def createSubWidget(self, position, size):
+    def createSubWidget(self, row, column, rowSpan, columnSpan):
         pl = MpvPlayerWidget(self)
-        self._players.append(pl)
-        self._layout.addWidget(pl)
-        pl.play(filename)
+        self._players[len(self._players)] = pl
+        # pl.move(*position)
+        # pl.setFixedSize(*size)
+
+        self._layout.addWidget(pl, row, column, rowSpan, columnSpan)
+
+    def playInWidget(self, widgetNumber: int, filenames: List[str]):
+        widget = self._players[widgetNumber]
+        widget.play(filenames)
 
     def closeEvent(self, a0: QCloseEvent) -> None:
-        for player in self._players:
+        for player in self._players.values():
             player.close()
         self._players.clear()
-
-        # if self.loop.is_running():
-        #     self.loop.call_soon_threadsafe(self.loop.stop)
-        #
-        # if self.thread.is_alive():
-        #     self.thread.join(100)
-
         super().closeEvent(a0)
 
     def sizeHint(self) -> QSize:

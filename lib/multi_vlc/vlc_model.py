@@ -185,3 +185,6 @@ class VlcModel(DirtyModel):
 
     def __iter__(self):
         return iter(self._data)
+
+    def __len__(self):
+        return len(self._data)

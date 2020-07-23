@@ -1,6 +1,6 @@
 import locale
 import logging
-from asyncio import AbstractEventLoop
+from typing import List
 
 import mpv
 from PyQt5.QtCore import Qt
@@ -11,18 +11,22 @@ logger = logging.getLogger(__name__)
 
 class MpvPlayerWidget(QWidget):
 
-    def __init__(self, parent=None, eventLoop: AbstractEventLoop = None):
-        # TODO remove unused argument or use it in case of poor efficiency
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.setAttribute(Qt.WA_DontCreateNativeAncestors)
+        self.setAttribute(Qt.WA_NativeWindow)
         self.setAttribute(Qt.WA_NativeWindow)
         self.setAttribute(Qt.WA_DeleteOnClose)
 
         self.setMpvLocale()
+        logger.debug(f"creating media player {id(self)}")  # DEBUG
+
         self.player = mpv.MPV(
             wid=str(int(self.winId())),
             log_handler=self.logHandler,
-            loglevel='info',
+            # loglevel='info',
+            # loglevel='debug',
+            loglevel='no',
+            **{'loop-playlist': 'inf'}
         )
 
     @staticmethod
@@ -41,8 +45,16 @@ class MpvPlayerWidget(QWidget):
 
         logger.log(level, f'[{component}]: {message}')
 
-    def play(self, filename):
-        self.player.play(filename)
+    def play(self, filenames: List[str]):
+        logger.debug(f"Starting player {id(self)}")  # DEBUG
+
+        isFirst = True
+        for fn in filenames:
+            if isFirst:
+                self.player.loadfile(fn, 'append-play')
+                isFirst = False
+
+            self.player.playlist_append(fn)
 
     def stop(self):
         self.player.quit()

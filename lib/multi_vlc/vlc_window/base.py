@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QMainWindow
 
 from multi_vlc.qobjects.settings import settings
 from multi_vlc.qobjects.time_status_bar import TimeStatusBar
+from multi_vlc.qobjects.widget.model_count import ModelCountWidget
 from multi_vlc.ui.ui_vlc import Ui_VlcMainWindow
 from multi_vlc.vlc_model import VlcModel
 from pyqt_settings.action import SettingDialogAction
@@ -21,7 +22,6 @@ class BaseWindow(QMainWindow, Ui_VlcMainWindow,
         self.setupUi(self)
         self.retranslateUi(self)
 
-        self.setStatusBar(TimeStatusBar(self))
         self.menuBar().addAction(SettingDialogAction(
             settings, icon=QIcon(), parent=self.menuBar()))
 
@@ -30,6 +30,10 @@ class BaseWindow(QMainWindow, Ui_VlcMainWindow,
         self.tableView.setModel(self.model)
         self.tableView.setColumnWidth(VlcModel.COL_FILES, 400)
         self.tableView.selectionModel().selectionChanged.connect(self._showSelectedCount)
+
+        sb = TimeStatusBar(self)
+        sb.addPermanentWidget(ModelCountWidget(self.model))
+        self.setStatusBar(sb)
 
         self.__post_init__()
 

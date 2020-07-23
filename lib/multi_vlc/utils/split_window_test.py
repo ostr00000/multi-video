@@ -1,3 +1,4 @@
+import os
 from pprint import pprint
 from typing import List
 
@@ -19,6 +20,7 @@ def draw(data: List[Position], dimX, dimY):
 
     plt.xlim((0, dimX))
     plt.ylim((dimY, 0))
+    os.makedirs('out', exist_ok=True)
     plt.savefig(f'out/t{len(data)}.png')
 
 

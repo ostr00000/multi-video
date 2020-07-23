@@ -26,8 +26,8 @@ class VideoManager(BaseWindow):
         return self._getPlayer().onStart()
 
     @changeStatusDec(msg="Video paused.", failureMsg="Vlc resumed.")
-    def onPause(self, isPause, process=None):
-        return self._getPlayer().onPause(isPause, process)
+    def onPause(self, isPause):
+        return self._getPlayer().onPause(isPause)
 
     @changeStatusDec(msg="Video stopped.")
     def onStop(self):

@@ -11,8 +11,8 @@ setup(
     ]},
     package_dir={"": "lib"},
     install_requires=[
-        'PyQt5', 'decorator', 'boltons', 'python-mpv'
-                                         'pyqt-settings @ git+https://github.com/ostr00000/pyqt-settings@master#egg=pyqt-settings',
+        'PyQt5', 'decorator', 'boltons', 'python-mpv',
+        'pyqt-settings @ git+https://github.com/ostr00000/pyqt-settings@master#egg=pyqt-settings',
     ],
     extras_require={'dev': ['matplotlib']},
 )

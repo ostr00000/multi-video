@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication
 from multi_vlc.const import ALLOWED_EXTENSIONS
 from multi_vlc.qobjects.time_status_bar import changeStatusDec
 from multi_vlc.utils.commands import runCommand
-from multi_vlc.utils.split_window import calculatePosition, addOffsets
+from multi_vlc.utils.split_window import calculatePosition
 from multi_vlc.vlc_model import Row
 from multi_vlc.vlc_window.base import BaseWindow
 
@@ -36,7 +36,11 @@ class PositionManager(BaseWindow):
 
         screen = QApplication.primaryScreen().availableGeometry()
         newPositions = calculatePosition(data, screen.width(), screen.height())
-        addOffsets(screen.top(), screen.left(), *newPositions.values())
+
+        marginX = screen.left()
+        marginY = screen.top()
+        for newPosition in newPositions.values():
+            newPosition.move(marginX, marginY)
 
         self.model.setPositionAndSize(newPositions)
         return True
