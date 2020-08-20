@@ -116,6 +116,10 @@ class MpvPlayerWidget(QWidget):
 
     def stop(self):
         self.player.quit()
+        try:
+            self.player.wait_for_shutdown()
+        except mpv.ShutdownError:
+            pass  # it is what we need
 
     def closeEvent(self, closeEvent):
         self.stop()
