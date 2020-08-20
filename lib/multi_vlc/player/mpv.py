@@ -2,7 +2,7 @@ import logging
 from threading import Thread
 from typing import Optional, List
 
-from PyQt5.QtCore import QEventLoop, QTimer
+from PyQt5.QtCore import QEventLoop
 from PyQt5.QtWidgets import QApplication
 
 from multi_vlc.player.base import BasePlayer
@@ -50,6 +50,8 @@ class MpvPlayer(BasePlayer):
 
     def onPause(self, isPause: bool):
         if self._playerWidgetGroup:
+            if not isPause:
+                self._playerWidgetGroup.raise_()
             self._playerWidgetGroup.pause(isPause)
             return isPause
         else:
