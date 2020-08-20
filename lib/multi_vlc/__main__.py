@@ -1,9 +1,12 @@
+import faulthandler
 import logging
 
 from multi_vlc import moduleName, appName, appDisplayName, orgName
 
 
 def main():
+    faulthandler.enable(all_threads=False)
+
     logging.basicConfig(level=logging.DEBUG)
     mainLogger = logging.getLogger(moduleName)
     mainLogger.setLevel(logging.DEBUG)

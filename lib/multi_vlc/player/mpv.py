@@ -1,10 +1,13 @@
 import logging
-from typing import Optional
+from threading import Thread
+from typing import Optional, List
 
 from PyQt5.QtCore import QEventLoop, QTimer
+from PyQt5.QtWidgets import QApplication
 
 from multi_vlc.player.base import BasePlayer
 from multi_vlc.qobjects.widget.mpv_player_group import MpvPlayerGroupWidget
+from multi_vlc.vlc_model import Row
 from multi_vlc.vlc_window.base import BaseWindow
 
 logger = logging.getLogger(__name__)
@@ -25,14 +28,21 @@ class MpvPlayer(BasePlayer):
         self._playerWidgetGroup.destroyed.connect(self.onPlayerDestroyed)
 
         self._playerWidgetGroup.createSubWidgets(self.model)
-        # for i, row in enumerate(self.model):  # type: (int, Row)
-        #     self._playerWidgetGroup.createSubWidget(row.position, row.size)
-
-        self._waitForPlayerReady()
         self._playerWidgetGroup.show()
-        self._waitForPlayerReady()
-        for i, row in enumerate(self.model):
-            self._playerWidgetGroup.playInWidget(i, row.files)
+        QApplication.processEvents(QEventLoop.ExcludeUserInputEvents)
+
+        Thread(target=self._startPlayers, name='startPlayer',
+               args=(list(self.model),), daemon=True).start()
+
+        return True
+
+    def _startPlayers(self, rows: List[Row]):
+        try:
+            for i, row in enumerate(rows):
+                self._playerWidgetGroup.playInWidget(i, row.files)
+                logger.debug(f'Start playing widget {i}')
+        except (AttributeError, KeyError):
+            logger.debug("user closed window while starting")
 
     @staticmethod
     def _waitForPlayerReady():
@@ -44,8 +54,14 @@ class MpvPlayer(BasePlayer):
         self._playerWidgetGroup = None
 
     def onPause(self, isPause: bool):
-        pass
+        if self._playerWidgetGroup:
+            self._playerWidgetGroup.pause(isPause)
+            return isPause
+        else:
+            return
 
     def onStop(self):
         if self._playerWidgetGroup:
+            self.baseWindow.actionPause.setChecked(False)
             self._playerWidgetGroup.close()
+        return True
