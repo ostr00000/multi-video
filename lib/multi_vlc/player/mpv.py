@@ -25,6 +25,7 @@ class MpvPlayer(BasePlayer):
             return
 
         self._playerWidgetGroup = MpvPlayerGroupWidget()
+        self._playerWidgetGroup.installEventFilter(self.baseWindow)
         self._playerWidgetGroup.destroyed.connect(self.onPlayerDestroyed)
 
         self._playerWidgetGroup.createSubWidgets(self.model)
