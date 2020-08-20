@@ -5,7 +5,7 @@ from multi_vlc.qobjects.time_status_bar import changeStatusDec
 from multi_vlc.vlc_window.base import BaseWindow
 
 
-class ModelManagement(BaseWindow):
+class ShuffleManager(BaseWindow):
     def __post_init__(self):
         super().__post_init__()
 

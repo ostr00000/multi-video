@@ -45,12 +45,6 @@ class MpvPlayer(BasePlayer):
         except (AttributeError, KeyError):
             logger.debug("user closed window while starting")
 
-    @staticmethod
-    def _waitForPlayerReady():
-        ev = QEventLoop()
-        QTimer.singleShot(500, ev.quit)
-        ev.exec_()
-
     def onPlayerDestroyed(self):
         self._playerWidgetGroup = None
 

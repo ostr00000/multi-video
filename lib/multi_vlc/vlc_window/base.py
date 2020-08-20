@@ -35,10 +35,12 @@ class BaseWindow(QMainWindow, Ui_VlcMainWindow,
         sb.addPermanentWidget(ModelCountWidget(self.model))
         self.setStatusBar(sb)
 
+        self.__basePostInit = False
         self.__post_init__()
+        assert self.__basePostInit, "You need to call 'super().__post_init__()'"
 
     def __post_init__(self):
-        pass
+        self.__basePostInit = True
 
     def _showSelectedCount(self):
         rows = len(self.tableView.selectionModel().selectedRows())
