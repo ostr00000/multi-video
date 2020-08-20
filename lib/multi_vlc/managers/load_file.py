@@ -43,6 +43,7 @@ class LoadFileManager(SafeCloseManager):
     def onNew(self):
         """Create new model"""
         self.model.loadJson('[]')
+        settings.LAST_PATH = ''
 
     @SafeCloseManager.takeActionIfUnsavedChangesDec
     def onLoad(self):
