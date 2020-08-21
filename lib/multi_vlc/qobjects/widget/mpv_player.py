@@ -4,12 +4,18 @@ import locale
 import logging
 from enum import Enum
 from functools import partial
+from random import randint
+from threading import Timer
+from time import sleep
 from typing import List
 
 import mpv
 from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QWidget, QApplication
+from decorator import decorator
+
+from multi_vlc.qobjects.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +36,15 @@ MpvMouseButton._mapToQt = {
     MpvMouseButton.RIGHT: Qt.RightButton,
     MpvMouseButton.MID: Qt.MidButton,
 }
+
+
+@decorator
+def ignoreShutdown(fun, *args, **kwargs):
+    try:
+        fun(*args, **kwargs)
+        return True
+    except mpv.ShutdownError:
+        return False
 
 
 class MpvPlayerWidget(QWidget):
@@ -55,6 +70,7 @@ class MpvPlayerWidget(QWidget):
         )
         self._enableMouseEvent(MpvMouseButton.MID)
         self.setMute()
+        self.player.observe_property('filename', self.onFileChanged)
 
     def _enableMouseEvent(self, mouseButton: MpvMouseButton):
         callback = partial(self._mousePress, mouseButton)
@@ -82,25 +98,67 @@ class MpvPlayerWidget(QWidget):
 
         logger.log(level, f'{id(self)}[{component}]: {message}')
 
+    @ignoreShutdown
+    def onFileChanged(self, propertyName, propertyValue):
+        if self.player.filename != propertyValue:
+            return
+        if not settings.IS_RANDOM_PART_ACTIVE:
+            return
+
+        minLength = settings.MINIMAL_LENGTH_TO_ACTIVATE_RANDOM_PART
+        duration = self.player.duration
+        if duration:
+            if duration >= minLength:
+                self._setRandomPosition()
+                logger.debug(f"[{id(self)}] set random position - new file")
+        else:
+            Timer(0.3, self.onFileChanged, args=(propertyName, propertyValue)).start()
+            logger.debug(f"[{id(self)}] no duration property - try again")
+
+    def _setRandomPosition(self):
+        if duration := self.player.duration:
+            duration = int(duration)
+            newDuration = settings.RANDOM_PART_DURATION
+
+            startTime = randint(0, duration - newDuration)
+            endTime = startTime + newDuration
+            self.player.__setattr__('time-pos', startTime)
+
+            Timer(newDuration, self.onRandomPartEnd, args=(self.player.filename, endTime)).start()
+
+    @ignoreShutdown
+    def onRandomPartEnd(self, currentFile, endTime):
+        if self.player.filename != currentFile:
+            return
+
+        curTime = self.player.__getattr__('time-pos')
+        if not curTime:
+            return
+
+        if (diff := endTime - curTime) > 0:
+            sleep(diff)
+
+        if self.player.__getattr__('playlist-count') == 1:
+            self._setRandomPosition()
+            logger.debug(f"[{id(self)}] set random position")
+        else:
+            self.player.playlist_next()
+            logger.debug(f"[{id(self)}] play next")
+
+    @ignoreShutdown
     def play(self, filenames: List[str]):
         """For some reason need to wait,
         otherwise deadlock or 'double free or corruption (!prev)' may occur"""
         assert filenames
-        try:
-            with self.player.prepare_and_wait_for_event('file-loaded'):
-                self._play(filenames)
-            return True
-        except mpv.ShutdownError:
-            return False
+        with self.player.prepare_and_wait_for_event('file-loaded'):
+            isFirst = True
+            for fn in filenames:
+                if isFirst:
+                    self.player.loadfile(fn, 'append-play')
+                    isFirst = False
+                    continue
 
-    def _play(self, filenames):
-        isFirst = True
-        for fn in filenames:
-            if isFirst:
-                self.player.loadfile(fn, 'append-play')
-                isFirst = False
-
-            self.player.playlist_append(fn)
+                self.player.playlist_append(fn)
 
     def setPause(self, isPause: bool = True, change=False):
         if change:
