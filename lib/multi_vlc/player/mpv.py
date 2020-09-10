@@ -22,6 +22,8 @@ class MpvPlayer(BasePlayer):
     def onStart(self):
         if self._playerWidgetGroup:
             self._playerWidgetGroup.raise_()
+            self._playerWidgetGroup.pause(False)
+            self.baseWindow.actionPause.setChecked(False)
             return
 
         self._playerWidgetGroup = MpvPlayerGroupWidget()
@@ -50,11 +52,13 @@ class MpvPlayer(BasePlayer):
 
     def onPause(self, isPause: bool):
         if self._playerWidgetGroup:
+            self.baseWindow.actionPause.setChecked(isPause)
             if not isPause:
                 self._playerWidgetGroup.raise_()
             self._playerWidgetGroup.pause(isPause)
             return isPause
         else:
+            self.baseWindow.actionPause.setChecked(False)
             return
 
     def onStop(self):
