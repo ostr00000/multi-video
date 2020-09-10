@@ -6,7 +6,6 @@ from enum import Enum
 from functools import partial
 from random import randint
 from threading import Timer
-from time import sleep
 from typing import List
 
 import mpv
@@ -136,7 +135,8 @@ class MpvPlayerWidget(QWidget):
             return
 
         if (diff := endTime - curTime) > 0:
-            sleep(diff)
+            Timer(diff, self.onRandomPartEnd, args=(currentFile, endTime)).start()
+            return
 
         if self.player.__getattr__('playlist-count') == 1:
             self._setRandomPosition()
