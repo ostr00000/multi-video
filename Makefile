@@ -1,4 +1,4 @@
-MAIN_PACKAGE_NAME=multi_vlc
+MAIN_PACKAGE_NAME=multi_video
 
 UIC=pyuic5
 RCC=pyrcc5
