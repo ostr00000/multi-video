@@ -2,8 +2,9 @@ import re
 from typing import List
 
 from PyQt5.QtWidgets import QApplication
+
 from multi_video.const import ALLOWED_EXTENSIONS
-from multi_video.model import Row
+from multi_video.model.row import Row
 from multi_video.qobjects.time_status_bar import changeStatusDec
 from multi_video.utils.commands import runCommand
 from multi_video.utils.split_window import calculatePosition

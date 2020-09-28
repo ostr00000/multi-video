@@ -4,7 +4,9 @@ from dataclasses import astuple
 from typing import List, Dict
 
 from PyQt5.QtCore import QModelIndex, Qt, QRect
-from multi_video.model import DirtyModel, Row
+
+from multi_video.model.dirty import DirtyModel
+from multi_video.model.row import Row
 from multi_video.utils.split_window import Position
 
 

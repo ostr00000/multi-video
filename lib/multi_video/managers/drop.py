@@ -2,9 +2,10 @@ import logging
 import os
 
 from PyQt5 import QtGui
+
 from multi_video.const import ALLOWED_EXTENSIONS
 from multi_video.managers.load_file import LoadFileManager
-from multi_video.model import Row
+from multi_video.model.row import Row
 from multi_video.qobjects.time_status_bar import changeStatusDec
 
 logger = logging.getLogger(__name__)

@@ -7,9 +7,10 @@ from typing import List
 
 from PyQt5.QtCore import QEventLoop, QTimer, QStandardPaths
 from boltons.cacheutils import cachedproperty
+
 from multi_video import appName
 from multi_video.const import SLEEP_TIME
-from multi_video.model import Row
+from multi_video.model.row import Row
 from multi_video.player.base import BasePlayer
 from multi_video.utils.commands import runCommand
 from multi_video.utils.iterator_wrappers import dataChangeIterator, processEventsIterator

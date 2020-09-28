@@ -4,7 +4,8 @@ from typing import Optional, List
 
 from PyQt5.QtCore import QEventLoop
 from PyQt5.QtWidgets import QApplication
-from multi_video.model import Row
+
+from multi_video.model.row import Row
 from multi_video.player.base import BasePlayer
 from multi_video.qobjects.widget.mpv_player_group import MpvPlayerGroupWidget
 from multi_video.window.base import BaseWindow
