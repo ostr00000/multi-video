@@ -13,7 +13,9 @@ from pyqt_settings.gui_widget.combo_box import ComboBoxFieldWidget
 class _Settings(QSettings):
     LAST_PATH = StrField('lastConfig/path')
     ASK_TO_SAVE_CHANGED_DATA = BoolField('ask/unsaved', default=True)
-    ALLOWED_EXTENSIONS = ListField('extensions/allowed', default=('mp4', 'webm', 'avi'))
+    ALLOWED_EXTENSIONS = ListField('load/allowedExtensions', default=('mp4', 'webm', 'avi'))
+    DRAG_MULTIPLE_CREATE_ONE = BoolField('load/dragMultipleCreateOne', default=True)
+    DRAG_CREATE_RECURSIVE = BoolField('load/dragCreateRecursive', default=True)
 
     VIDEO_PLAYER = StrField('video/player', default='vlc')
     VIDEO_PLAYER.widgetFactory = InitArgWidgetFactory(ComboBoxFieldWidget, 'vlc', 'mpv')

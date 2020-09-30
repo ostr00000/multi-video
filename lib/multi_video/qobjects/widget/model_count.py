@@ -1,9 +1,10 @@
-from PyQt5.QtCore import QAbstractItemModel
 from PyQt5.QtWidgets import QWidget, QLabel
+
+from multi_video.model.video import VideoModel
 
 
 class ModelCountWidget(QLabel):
-    def __init__(self, model: QAbstractItemModel, parent: QWidget = None):
+    def __init__(self, model: VideoModel, parent: QWidget = None):
         super().__init__(parent)
         self.model = model
         self.model.rowsInserted.connect(self.onModelChange)

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 classes = list(loadClassFromPackage(multi_video.managers))
 
 
-class VideoWindow(*classes,
+class VideoWindow(*classes, BaseWindow,
                   metaclass=GeometrySaverMeta.wrap(BaseWindow),
                   settings=videoSettings):
     pass

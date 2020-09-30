@@ -4,6 +4,7 @@ from PyQt5 import QtGui
 from PyQt5.QtCore import QPoint, Qt, QRect, QItemSelection, QItemSelectionModel, QEvent
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QRubberBand, QToolButton, QMessageBox
+
 from multi_video.model.video import VideoModel
 from multi_video.qobjects.time_status_bar import changeStatusDec
 from multi_video.window.base import BaseWindow
@@ -62,6 +63,7 @@ class RubberBandManager(BaseWindow):
 
     def mousePressEvent(self, a0: QtGui.QMouseEvent):
         if not self.rubberBandActive:
+            super().mousePressEvent(a0)
             return
 
         child = self.childAt(a0.pos())
@@ -84,6 +86,8 @@ class RubberBandManager(BaseWindow):
         if self.rubberBandActive and self.rubberBand:
             geom = QRect(self.rubberBandStartPos, a0.globalPos()).normalized()
             self.rubberBand.setGeometry(geom)
+        else:
+            return super().mouseMoveEvent(a0)
 
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent):
         if self.rubberBandActive and self.rubberBand:
@@ -91,3 +95,5 @@ class RubberBandManager(BaseWindow):
             geom = QRect(self.rubberBandStartPos, a0.globalPos()).normalized()
             self.model.setPosition(row, geom)
             self._onSetPositionClose()
+
+        super().mouseReleaseEvent(a0)

@@ -46,6 +46,9 @@ class VideoModel(DirtyModel):
         if role not in (Qt.DisplayRole, Qt.ToolTipRole):
             return
 
+        if not index.isValid():
+            return
+
         row = self._data[index.row()]
         obj = astuple(row)[index.column()]
         if index.column() == VideoModel.COL_FILES:

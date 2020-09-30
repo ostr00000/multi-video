@@ -5,14 +5,15 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from multi_video.managers.safe_close import SafeCloseManager
 from multi_video.qobjects.settings import videoSettings
 from multi_video.qobjects.time_status_bar import changeStatusDec
+from multi_video.window.base import BaseWindow
 
 logger = logging.getLogger(__name__)
 
 
-class LoadFileManager(SafeCloseManager):
+class LoadFileManager(BaseWindow):
     def __init__(self, *args):
         super().__init__(*args)
-        self.lastJson = None
+        self._lastJson = None
 
         if path := videoSettings.LAST_PATH:
             self._loadConfiguration(path)
@@ -35,7 +36,7 @@ class LoadFileManager(SafeCloseManager):
             videoSettings.LAST_PATH = ''
             return
 
-        self.lastJson = jsonObj
+        self._lastJson = jsonObj
         self.model.loadJson(jsonObj)
         videoSettings.LAST_PATH = path
 
@@ -56,8 +57,8 @@ class LoadFileManager(SafeCloseManager):
     @changeStatusDec(msg="Configuration reset.")
     def onReset(self):
         """Reset configuration to last loaded"""
-        if self.lastJson:
-            self.model.loadJson(self.lastJson)
+        if self._lastJson:
+            self.model.loadJson(self._lastJson)
             return True
         else:
             QMessageBox.warning(self, "Cannot reset",

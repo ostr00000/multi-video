@@ -25,6 +25,9 @@ class MpvPlayerGroupWidget(QWidget,
 
     def createSubWidgets(self, iterable):
         data = list(iterable)
+        if not data:
+            return
+
         rX, rY = getMinimumRectangle(data)
         positions = calculatePosition(data, rX, rY)
         for d in data:

@@ -18,7 +18,7 @@ class EventFilterForActionManager(BaseWindow):
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         if isinstance(event, QKeyEvent):
-            key = QKeySequence(event.modifiers() | event.key()).toString().lower()
+            key = QKeySequence(int(event.modifiers()) | event.key()).toString().lower()
             if action := self._strShortcutToAction.get(key):
                 action.trigger()
 

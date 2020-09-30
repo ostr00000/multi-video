@@ -2,11 +2,11 @@ from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtWidgets import QMessageBox
 from decorator import decorator
 
-from multi_video.managers.save_file import SaveFileManager
 from multi_video.qobjects.settings import videoSettings
+from multi_video.window.base import BaseWindow
 
 
-class SafeCloseManager(SaveFileManager):
+class SafeCloseManager(BaseWindow):
 
     @staticmethod
     @decorator
