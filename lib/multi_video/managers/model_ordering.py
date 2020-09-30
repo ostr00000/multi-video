@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtWidgets import QFileDialog
 
-from multi_video.const import ALLOWED_EXTENSIONS
+from manager.utils.settings import settings
 from multi_video.model.row import Row
 from multi_video.qobjects.time_status_bar import changeStatusDec
 from multi_video.window.base import BaseWindow
@@ -19,7 +19,7 @@ class ModelManagement(BaseWindow):
     @changeStatusDec(msg="Files added.")
     def onAdd(self):
         """Add selected files to model"""
-        extensions = ' '.join(f'*.{ext}' for ext in ALLOWED_EXTENSIONS)
+        extensions = ' '.join(f'*.{ext}' for ext in settings.ALLOWED_EXTENSIONS)
         files, _ext = QFileDialog.getOpenFileNames(
             self, "Select files to open", filter=f"Films ({extensions})")
         if files:

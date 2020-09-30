@@ -1,7 +1,8 @@
 import logging
 
 from PyQt5.QtWidgets import QFileDialog
-from multi_video.qobjects.settings import settings
+
+from multi_video.qobjects.settings import videoSettings
 from multi_video.qobjects.time_status_bar import changeStatusDec
 from multi_video.window.base import BaseWindow
 
@@ -19,7 +20,7 @@ class SaveFileManager(BaseWindow):
     @changeStatusDec(msg="Configuration saved.")
     def onSave(self):
         """Save model to last file"""
-        if filePath := settings.LAST_PATH:
+        if filePath := videoSettings.LAST_PATH:
             with open(filePath, 'w') as file:
                 file.write(self.model.toJson())
             return True
@@ -36,5 +37,5 @@ class SaveFileManager(BaseWindow):
                 filePath += '.json'
             with open(filePath, 'w') as file:
                 file.write(self.model.toJson())
-            settings.LAST_PATH = filePath
+            videoSettings.LAST_PATH = filePath
             return True

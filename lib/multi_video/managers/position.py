@@ -3,8 +3,8 @@ from typing import List
 
 from PyQt5.QtWidgets import QApplication
 
-from multi_video.const import ALLOWED_EXTENSIONS
 from multi_video.model.row import Row
+from multi_video.qobjects.settings import videoSettings
 from multi_video.qobjects.time_status_bar import changeStatusDec
 from multi_video.utils.commands import runCommand
 from multi_video.utils.split_window import calculatePosition
@@ -13,7 +13,6 @@ from multi_video.window.base import BaseWindow
 
 class PositionManager(BaseWindow):
     VLC_FILE_ARG_PATTERN = re.compile(r'.*vlc.*--started-from-file( \'?.*\.\w+\'?)+')
-    FILES_PATTERN = re.compile(r'\'?(.+?\.{ext})\'?'.format(ext='|'.join(ALLOWED_EXTENSIONS)))
 
     def __post_init__(self):
         super().__post_init__()
@@ -54,7 +53,9 @@ class PositionManager(BaseWindow):
             match = cls.VLC_FILE_ARG_PATTERN.match(command)
             if match:
                 filesStr = match.group(1).lstrip()
-                files = cls.FILES_PATTERN.findall(filesStr)
+
+                pattern = rf'\'?(.+?\.{"|".join(videoSettings.ALLOWED_EXTENSIONS)})\'?'
+                files = re.findall(pattern, filesStr)
                 for f in files:
                     result.append(f)
 

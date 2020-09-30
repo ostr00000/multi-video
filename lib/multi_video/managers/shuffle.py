@@ -1,6 +1,6 @@
 import random
 
-from multi_video.qobjects.settings import settings
+from multi_video.qobjects.settings import videoSettings
 from multi_video.qobjects.time_status_bar import changeStatusDec
 from multi_video.window.base import BaseWindow
 
@@ -15,7 +15,7 @@ class ShuffleManager(BaseWindow):
     def onShuffle(self):
         data = list(self.model)
         random.shuffle(data)
-        shuffleInternal = settings.SHUFFLE_INTERNAL_ORDER
+        shuffleInternal = videoSettings.SHUFFLE_INTERNAL_ORDER
 
         self.model.clean()
         for row in data:

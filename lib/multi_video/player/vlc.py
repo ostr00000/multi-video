@@ -9,9 +9,9 @@ from PyQt5.QtCore import QEventLoop, QTimer, QStandardPaths
 from boltons.cacheutils import cachedproperty
 
 from multi_video import appName
-from multi_video.const import SLEEP_TIME
 from multi_video.model.row import Row
 from multi_video.player.base import BasePlayer
+from multi_video.qobjects.settings import videoSettings
 from multi_video.utils.commands import runCommand
 from multi_video.utils.iterator_wrappers import dataChangeIterator, processEventsIterator
 from multi_video.utils.window_collector import WindowCollector
@@ -58,7 +58,7 @@ class VlcPlayer(BasePlayer):
             self.baseWindow.show()
             self.baseWindow.raise_()
 
-            QTimer.singleShot(SLEEP_TIME, loop.quit)
+            QTimer.singleShot(videoSettings.VLC_SLEEP_TIME_LLmsJJ, loop.quit)
             loop.exec()
 
             row.pid = process.pid
@@ -142,7 +142,7 @@ class VlcPlayer(BasePlayer):
     def _killProcesses(processes: List[Popen]):
         if any(p.poll() is None for p in processes):
             loop = QEventLoop()
-            QTimer.singleShot(SLEEP_TIME, loop.quit)
+            QTimer.singleShot(videoSettings.VLC_SLEEP_TIME_LLmsJJ, loop.quit)
             loop.processEvents()
 
         for p in processes:

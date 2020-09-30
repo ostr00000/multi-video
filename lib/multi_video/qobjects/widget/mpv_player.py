@@ -13,7 +13,8 @@ from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QWidget, QApplication
 from decorator import decorator
-from multi_video.qobjects.settings import settings
+
+from multi_video.qobjects.settings import videoSettings
 
 logger = logging.getLogger(__name__)
 
@@ -100,10 +101,10 @@ class MpvPlayerWidget(QWidget):
     def onFileChanged(self, propertyName, propertyValue):
         if self.player.filename != propertyValue:
             return
-        if not settings.IS_RANDOM_PART_ACTIVE:
+        if not videoSettings.IS_RANDOM_PART_ACTIVE:
             return
 
-        minLength = settings.MINIMAL_LENGTH_TO_ACTIVATE_RANDOM_PART
+        minLength = videoSettings.MINIMAL_LENGTH_TO_ACTIVATE_RANDOM_PART
         duration = self.player.duration
         if duration:
             if duration >= minLength:
@@ -116,7 +117,7 @@ class MpvPlayerWidget(QWidget):
     def _setRandomPosition(self):
         if duration := self.player.duration:
             duration = int(duration)
-            newDuration = settings.RANDOM_PART_DURATION
+            newDuration = videoSettings.RANDOM_PART_DURATION
 
             startTime = randint(0, duration - newDuration)
             endTime = startTime + newDuration

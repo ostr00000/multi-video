@@ -2,12 +2,12 @@ import logging
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow
+
 from multi_video.model.video import VideoModel
-from multi_video.qobjects.settings import settings
+from multi_video.qobjects.settings import videoSettings
 from multi_video.qobjects.time_status_bar import TimeStatusBar
 from multi_video.qobjects.widget.model_count import ModelCountWidget
 from multi_video.ui.ui_multi_video import Ui_MultiVideoMainWindow
-
 from pyqt_settings.action import SettingDialogAction
 from pyqt_utils.slot_decorator import SlotDecorator
 
@@ -23,7 +23,7 @@ class BaseWindow(QMainWindow, Ui_MultiVideoMainWindow,
         self.retranslateUi(self)
 
         self.menuBar().addAction(SettingDialogAction(
-            settings, icon=QIcon(), parent=self.menuBar()))
+            videoSettings, icon=QIcon(), parent=self.menuBar()))
 
         self.model = VideoModel(self)
         self.model.dirtyChanged.connect(self.setWindowModified)

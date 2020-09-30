@@ -4,10 +4,10 @@ from typing import List, Dict
 from PyQt5.QtCore import QSize, Qt, QEvent, QObject
 from PyQt5.QtGui import QCloseEvent, QMouseEvent
 from PyQt5.QtWidgets import QWidget, QGridLayout
-from multi_video.qobjects.settings import settings
+
+from multi_video.qobjects.settings import videoSettings
 from multi_video.qobjects.widget.mpv_player import MpvPlayerWidget
 from multi_video.utils.split_window import calculatePosition, getMinimumRectangle
-
 from pyqt_settings.metaclass.geometry_saver import GeometrySaverMeta
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class MpvPlayerGroupWidget(QWidget,
                            metaclass=GeometrySaverMeta.wrap(QWidget),
-                           settings=settings):
+                           settings=videoSettings):
 
     def __init__(self, parent=None):
         super().__init__(parent)

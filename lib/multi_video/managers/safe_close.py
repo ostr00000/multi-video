@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QMessageBox
 from decorator import decorator
 
 from multi_video.managers.save_file import SaveFileManager
-from multi_video.qobjects.settings import settings
+from multi_video.qobjects.settings import videoSettings
 
 
 class SafeCloseManager(SaveFileManager):
@@ -21,7 +21,7 @@ class SafeCloseManager(SaveFileManager):
         if not self.model.isDirty:
             return True
 
-        if not settings.ASK_TO_SAVE_CHANGED_DATA:
+        if not videoSettings.ASK_TO_SAVE_CHANGED_DATA:
             return True
 
         resultButton = QMessageBox.question(

@@ -1,8 +1,9 @@
 import logging
 
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
+
 from multi_video.managers.safe_close import SafeCloseManager
-from multi_video.qobjects.settings import settings
+from multi_video.qobjects.settings import videoSettings
 from multi_video.qobjects.time_status_bar import changeStatusDec
 
 logger = logging.getLogger(__name__)
@@ -13,7 +14,7 @@ class LoadFileManager(SafeCloseManager):
         super().__init__(*args)
         self.lastJson = None
 
-        if path := settings.LAST_PATH:
+        if path := videoSettings.LAST_PATH:
             self._loadConfiguration(path)
 
     def __post_init__(self):
@@ -31,18 +32,18 @@ class LoadFileManager(SafeCloseManager):
                 jsonObj = file.read()
         except OSError as e:
             logger.info(e)
-            settings.LAST_PATH = ''
+            videoSettings.LAST_PATH = ''
             return
 
         self.lastJson = jsonObj
         self.model.loadJson(jsonObj)
-        settings.LAST_PATH = path
+        videoSettings.LAST_PATH = path
 
     @SafeCloseManager.takeActionIfUnsavedChangesDec
     def onNew(self):
         """Create new model"""
         self.model.loadJson('[]')
-        settings.LAST_PATH = ''
+        videoSettings.LAST_PATH = ''
 
     @SafeCloseManager.takeActionIfUnsavedChangesDec
     def onLoad(self):
