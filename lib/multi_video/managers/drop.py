@@ -59,7 +59,7 @@ class DropManager(BaseWindow):
         or dictionary contains files with these extensions"""
         self._prepareParameters(dropEvent)
         self._successDrop = False
-        valid = []
+        valid: List[str] = []
         urls = dropEvent.mimeData().urls()
 
         for url in urls:
@@ -71,7 +71,7 @@ class DropManager(BaseWindow):
                 self.loadFromDir(path)
             else:
                 if path.suffix in self._allowedExtensions:
-                    valid.append(path)
+                    valid.append(str(path))
                 elif path.suffix == 'json' and len(urls) == 1:
                     self._loadConfiguration(path)
                     return
