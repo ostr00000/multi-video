@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>SelectTagDialog</class>
+    <widget class="QDialog" name="SelectTagDialog">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>565</width>
+                <height>334</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>Select tags</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                    <item>
+                        <widget class="QLabel" name="label_2">
+                            <property name="text">
+                                <string>Tag dir:</string>
+                            </property>
+                        </widget>
+                    </item>
+                    <item>
+                        <widget class="QLineEdit" name="tagDirLineEdit">
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="readOnly">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                    </item>
+                    <item>
+                        <widget class="QPushButton" name="changeTagDirButton">
+                            <property name="text">
+                                <string>Change tag directory</string>
+                            </property>
+                        </widget>
+                    </item>
+                </layout>
+            </item>
+            <item>
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                    <item>
+                        <widget class="QListWidget" name="listWidget"/>
+                    </item>
+                    <item>
+                        <layout class="QFormLayout" name="formLayout">
+                            <item row="0" column="0">
+                                <widget class="QLabel" name="label">
+                                    <property name="text">
+                                        <string>Avaliable tags:</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="0" column="1">
+                                <widget class="QComboBox" name="tagComboBox">
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="1" column="0">
+                                <widget class="QPushButton" name="buttonAdd">
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="text">
+                                        <string>Add</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item row="2" column="0">
+                                <widget class="QPushButton" name="buttonRemove">
+                                    <property name="enabled">
+                                        <bool>false</bool>
+                                    </property>
+                                    <property name="text">
+                                        <string>Remove</string>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </item>
+                </layout>
+            </item>
+            <item>
+                <widget class="QDialogButtonBox" name="buttonBox">
+                    <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="standardButtons">
+                        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+                    </property>
+                </widget>
+            </item>
+        </layout>
+        <action name="actionAdd">
+            <property name="icon">
+                <iconset theme="list-add">
+                    <normaloff>../../../../../.designer/backup</normaloff>
+                    ../../../../../.designer/backup
+                </iconset>
+            </property>
+            <property name="text">
+                <string>Add</string>
+            </property>
+        </action>
+        <action name="actionRemove">
+            <property name="icon">
+                <iconset theme="list-remove">
+                    <normaloff>../../../../../.designer/backup</normaloff>
+                    ../../../../../.designer/backup
+                </iconset>
+            </property>
+            <property name="text">
+                <string>Remove</string>
+            </property>
+        </action>
+    </widget>
+    <tabstops>
+        <tabstop>buttonAdd</tabstop>
+        <tabstop>buttonRemove</tabstop>
+        <tabstop>listWidget</tabstop>
+    </tabstops>
+    <resources/>
+    <connections>
+        <connection>
+            <sender>buttonBox</sender>
+            <signal>accepted()</signal>
+            <receiver>SelectTagDialog</receiver>
+            <slot>accept()</slot>
+            <hints>
+                <hint type="sourcelabel">
+                    <x>257</x>
+                    <y>324</y>
+                </hint>
+                <hint type="destinationlabel">
+                    <x>157</x>
+                    <y>274</y>
+                </hint>
+            </hints>
+        </connection>
+        <connection>
+            <sender>buttonBox</sender>
+            <signal>rejected()</signal>
+            <receiver>SelectTagDialog</receiver>
+            <slot>reject()</slot>
+            <hints>
+                <hint type="sourcelabel">
+                    <x>325</x>
+                    <y>324</y>
+                </hint>
+                <hint type="destinationlabel">
+                    <x>286</x>
+                    <y>274</y>
+                </hint>
+            </hints>
+        </connection>
+    </connections>
+</ui>
