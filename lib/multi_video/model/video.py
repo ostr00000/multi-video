@@ -1,6 +1,6 @@
 import json
-import os
 from dataclasses import astuple
+from pprint import pformat
 from typing import List, Dict
 
 from PyQt5.QtCore import QModelIndex, Qt, QRect
@@ -50,10 +50,12 @@ class VideoModel(DirtyModel):
             return
 
         row = self._data[index.row()]
-        obj = astuple(row)[index.column()]
-        if index.column() == VideoModel.COL_FILES:
-            return ','.join(map(os.path.basename, obj))
+        if index.column() == VideoModel.COL_FILES and role == Qt.DisplayRole:
+            return str(row)
 
+        obj = astuple(row)[index.column()]
+        if isinstance(obj, list):
+            obj = pformat(obj)
         return str(obj)
 
     @DirtyModel.dirtyDec

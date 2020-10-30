@@ -1,3 +1,4 @@
+import os
 import uuid
 from dataclasses import dataclass, field, asdict
 from typing import List, Tuple
@@ -34,3 +35,6 @@ class Row(DataClass):
         del d['pid']
         del d['wid']
         return d
+
+    def __str__(self):
+        return ','.join(map(os.path.basename, self.files))
