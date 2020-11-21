@@ -6,8 +6,8 @@ from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QRubberBand, QToolButton, QMessageBox
 
 from multi_video.model.video import VideoModel
-from multi_video.qobjects.time_status_bar import changeStatusDec
 from multi_video.window.base import BaseWindow
+from pyqt_utils.python.time_status_bar import changeStatusDec
 
 
 class RubberBandManager(BaseWindow):

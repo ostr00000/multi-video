@@ -6,10 +6,10 @@ from PyQt5.QtWidgets import QAction, QToolButton, QDialog, QFileDialog
 
 from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
-from multi_video.qobjects.time_status_bar import changeStatusDec
 from multi_video.ui.ui_select_tag import Ui_SelectTagDialog
 from multi_video.window.base import BaseWindow
 from pyqt_utils.metaclass.slot_decorator import SlotDecoratorMeta
+from pyqt_utils.python.time_status_bar import changeStatusDec
 from tag_space_tools.core.tag_search import TagFinder
 
 T = TypeVar('T')

@@ -3,8 +3,8 @@ from PyQt5 import QtGui
 from multi_video.player.mpv import MpvPlayer
 from multi_video.player.vlc import VlcPlayer
 from multi_video.qobjects.settings import videoSettings
-from multi_video.qobjects.time_status_bar import changeStatusDec
 from multi_video.window.base import BaseWindow
+from pyqt_utils.python.time_status_bar import changeStatusDec
 
 
 class VideoManager(BaseWindow):

@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import QFileDialog
 
 from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
-from multi_video.qobjects.time_status_bar import changeStatusDec
 from multi_video.window.base import BaseWindow
+from pyqt_utils.python.time_status_bar import changeStatusDec
 
 
 class ModelManagement(BaseWindow):
