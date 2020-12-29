@@ -1,3 +1,4 @@
+import logging
 from typing import List, Dict, Iterable, TypeVar
 
 from PyQt5.QtCore import QSize, Qt, pyqtSlot, QFile
@@ -14,6 +15,7 @@ from tag_space_tools.core.tag_search import TagFinder
 
 T = TypeVar('T')
 U = TypeVar('U')
+logger = logging.getLogger(__name__)
 
 
 class _SelectTagDialog(QDialog, Ui_SelectTagDialog, metaclass=SlotDecoratorMeta):
@@ -40,14 +42,20 @@ class _SelectTagDialog(QDialog, Ui_SelectTagDialog, metaclass=SlotDecoratorMeta)
 
         if tagDirectory := QFileDialog.getExistingDirectory(
                 self, caption='Select tag root', directory=directory):
+            self.tagDirLineEdit.setText('')  # To send signal
             self.tagDirLineEdit.setText(tagDirectory)
 
     def onTagDirChanged(self, text):
         if not text:
             return
 
+        try:
+            items = TagFinder(text).findAllTags()
+        except IOError as e:
+            logger.error(e)
+            return
+
         videoSettings.setValue(self.TAG_DIR, text)
-        items = TagFinder(text).findAllTags()
         self.tagComboBox.clear()
         self.tagComboBox.addItems(items)
         self.tagComboBox.setEnabled(True)
