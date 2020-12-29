@@ -1,9 +1,10 @@
 import logging
-from typing import List, Dict, Iterable, TypeVar
+from pathlib import Path
+from typing import List, Dict, Iterable, TypeVar, Tuple, Sequence
 
-from PyQt5.QtCore import QSize, Qt, pyqtSlot, QFile
+from PyQt5.QtCore import QSize, Qt, pyqtSlot
 from PyQt5.QtGui import QIcon, QPainter, QColor, QCloseEvent
-from PyQt5.QtWidgets import QAction, QToolButton, QDialog, QFileDialog
+from PyQt5.QtWidgets import QAction, QToolButton, QDialog, QFileDialog, QInputDialog
 
 from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
@@ -37,11 +38,17 @@ class _SelectTagDialog(QDialog, Ui_SelectTagDialog, metaclass=SlotDecoratorMeta)
         self.listWidget.currentTextChanged.connect(self.onCurrentTextChanged)
 
     def onChangeTagDir(self):
-        currentTagDir = self.tagDirLineEdit.text()
-        directory = currentTagDir if QFile(currentTagDir).exists() else ''
+        baseTagDir = Path(self.tagDirLineEdit.text())
+
+        if not baseTagDir.exists():
+            if Path('/home') in baseTagDir.parents:
+                while not baseTagDir.exists():
+                    baseTagDir = baseTagDir.parent
+            else:
+                baseTagDir = Path('')
 
         if tagDirectory := QFileDialog.getExistingDirectory(
-                self, caption='Select tag root', directory=directory):
+                self, caption='Select tag root', directory=str(baseTagDir)):
             self.tagDirLineEdit.setText('')  # To send signal
             self.tagDirLineEdit.setText(tagDirectory)
 
@@ -77,9 +84,9 @@ class _SelectTagDialog(QDialog, Ui_SelectTagDialog, metaclass=SlotDecoratorMeta)
     def onCurrentTextChanged(self, currentText: str):
         self.buttonRemove.setEnabled(bool(currentText))
 
-    def getTagRow(self):
+    def getTagFiles(self) -> Tuple[List[str], List[str]]:
         if not (tagPath := self.tagDirLineEdit.text()):
-            return
+            return [], []
 
         tagFinder = TagFinder(tagPath)
         tagNames = []
@@ -93,8 +100,7 @@ class _SelectTagDialog(QDialog, Ui_SelectTagDialog, metaclass=SlotDecoratorMeta)
         allowedExt = ['.' + ae for ae in videoSettings.ALLOWED_EXTENSIONS]
         tagFiles = [str(path) for path in self.roundGenerator(tagsToGen, tagNames)
                     if path.suffix in allowedExt]
-        tagRow = Row(tagFiles)
-        return tagRow
+        return tagFiles, tagNames
 
     @staticmethod
     def _genFiles(tagFinder: TagFinder, tag: str):
@@ -114,17 +120,6 @@ class _SelectTagDialog(QDialog, Ui_SelectTagDialog, metaclass=SlotDecoratorMeta)
                 genSeq.append(firstGen)
 
 
-if __name__ == '__main__':
-    def _main():
-        gens = {1: 'aa', 2: 'bbbbbbbbb', 3: 'ccc'}
-        seq = [1, 2, 3, 2, 1]
-        res = list(_SelectTagDialog.roundGenerator(gens, seq))
-        print(res)
-
-
-    _main()
-
-
 class AddFromTag(BaseWindow):
     DEFAULT_ACTION = 'AddFromTag/defaultAction'
 
@@ -138,15 +133,22 @@ class AddFromTag(BaseWindow):
         self.toolButtonAdd = QToolButton(self)
         self.toolButtonAdd.setPopupMode(QToolButton.MenuButtonPopup)
 
-        self.addFromTags = QAction(self._getIcon(), 'Add from tags', self.toolButtonAdd)
-        self.addFromTags.setObjectName('addFromTags')
-        self.addFromTags.triggered.connect(self.onAddFromTagTriggered)
+        self.addSingleFromTags = QAction(
+            self._getIcon(Qt.red), "Add single from tags", self.toolButtonAdd)
+        self.addSingleFromTags.setObjectName('addSingleFromTags')
+        self.addSingleFromTags.triggered.connect(self.onAddSingleFromTagTriggered)
+
+        self.addManyFromTags = QAction(
+            self._getIcon(Qt.blue), 'Add many from tags', self.toolButtonAdd)
+        self.addManyFromTags.setObjectName('addManyFromTags')
+        self.addManyFromTags.triggered.connect(self.onAddManyFromTagTriggered)
+
         self.toolButtonAdd.addAction(self.actionAdd)
-        self.toolButtonAdd.addAction(self.addFromTags)
+        self.toolButtonAdd.addAction(self.addSingleFromTags)
+        self.toolButtonAdd.addAction(self.addManyFromTags)
 
     @staticmethod
-    def _getIcon():
-        color = QColor(Qt.red)
+    def _getIcon(color: QColor):
         icon = QIcon.fromTheme('list-add')
         pixmap = icon.pixmap(icon.actualSize(QSize(32, 32)))
         painter = QPainter(pixmap)
@@ -173,11 +175,40 @@ class AddFromTag(BaseWindow):
         videoSettings.setValue(self.DEFAULT_ACTION, objName)
         super(AddFromTag, self).closeEvent(closeEvent)
 
-    @changeStatusDec(msg="Tag files added.")
-    def onAddFromTagTriggered(self):
-        """Add selected tags that generate files to model"""
+    @changeStatusDec(msg="Row from tag files added.")
+    def onAddSingleFromTagTriggered(self):
+        """Add one row to model from files generated from tags."""
         dlg = _SelectTagDialog(self)
         if dlg.exec_():
-            tagRow = dlg.getTagRow()
-            self.model.appendRow(tagRow)
-            return True
+            tagFiles, tagNames = dlg.getTagFiles()
+            if tagFiles:
+                self.model.appendRow(Row(tagFiles))
+                return True
+
+    @changeStatusDec(msg="Many rows from tag files added.")
+    def onAddManyFromTagTriggered(self):
+        """Add many rows to model from files generated from tags."""
+        dlg = _SelectTagDialog(self)
+        if not dlg.exec_():
+            return
+
+        tagFiles, tagNames = dlg.getTagFiles()
+        if not tagFiles:
+            return
+
+        num, ok = QInputDialog.getInt(
+            self, "Video number", "Get number of video row",
+            value=min(36, len(tagFiles)), min=1, max=min(144, len(tagFiles)))
+        if not ok:
+            return
+
+        for tagFilesSeq in self._split(tagFiles, num):
+            self.model.appendRow(Row(tagFilesSeq))
+
+        return True
+
+    @staticmethod
+    def _split(sequence: Sequence, size: int):
+        k, m = divmod(len(sequence), size)
+        return (sequence[i * k + min(i, m):(i + 1) * k + min(i + 1, m)]
+                for i in range(size))
