@@ -4,6 +4,7 @@ import logging
 from multi_video import moduleName, appName, appDisplayName, orgName
 
 
+# noinspection DuplicatedCode
 def main():
     faulthandler.enable(all_threads=False)
 
@@ -25,5 +26,4 @@ def main():
 
 
 if __name__ == '__main__':
-    print('main')
     main()
