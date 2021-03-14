@@ -12,7 +12,7 @@ from multi_video.ui.ui_select_tag import Ui_SelectTagDialog
 from multi_video.window.base import BaseWindow
 from pyqt_utils.metaclass.slot_decorator import SlotDecoratorMeta
 from pyqt_utils.python.time_status_bar import changeStatusDec
-from tag_space_tools.core.tag_search import TagFinder
+from tag_space_tools.core.tag_finder import TagFinder
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -32,7 +32,7 @@ class _SelectTagDialog(QDialog, Ui_SelectTagDialog, metaclass=SlotDecoratorMeta)
         self.buttonAdd.clicked.connect(self.onAddTag)
         self.buttonRemove.clicked.connect(self.onRemoveTag)
 
-        if lastVal := videoSettings.value(self.TAG_DIR, defaultValue=''):
+        if lastVal := videoSettings.TAG_DIR:
             self.tagDirLineEdit.setText(lastVal)
 
         self.listWidget.currentTextChanged.connect(self.onCurrentTextChanged)
@@ -62,7 +62,7 @@ class _SelectTagDialog(QDialog, Ui_SelectTagDialog, metaclass=SlotDecoratorMeta)
             logger.error(e)
             return
 
-        videoSettings.setValue(self.TAG_DIR, text)
+        videoSettings.TAG_DIR = text
         self.tagComboBox.clear()
         self.tagComboBox.addItems(items)
         self.tagComboBox.setEnabled(True)
@@ -121,7 +121,6 @@ class _SelectTagDialog(QDialog, Ui_SelectTagDialog, metaclass=SlotDecoratorMeta)
 
 
 class AddFromTag(BaseWindow):
-    DEFAULT_ACTION = 'AddFromTag/defaultAction'
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -163,8 +162,10 @@ class AddFromTag(BaseWindow):
         self.toolBar.removeAction(self.actionAdd)
 
     def _setDefaultAction(self):
-        objName = videoSettings.value(
-            self.DEFAULT_ACTION, defaultValue=self.actionAdd.objectName())
+        objName = videoSettings.TAG_DEFAULT_ACTION
+        if not objName:
+            objName = self.actionAdd.objectName()
+
         if not (defaultAction := self.findChild(QAction, objName)):
             defaultAction = self.actionAdd
         self.toolButtonAdd.setDefaultAction(defaultAction)
@@ -172,7 +173,7 @@ class AddFromTag(BaseWindow):
 
     def closeEvent(self, closeEvent: QCloseEvent) -> None:
         objName = self.toolButtonAdd.defaultAction().objectName()
-        videoSettings.setValue(self.DEFAULT_ACTION, objName)
+        videoSettings.TAG_DEFAULT_ACTION = objName
         super(AddFromTag, self).closeEvent(closeEvent)
 
     @changeStatusDec(msg="Row from tag files added.")

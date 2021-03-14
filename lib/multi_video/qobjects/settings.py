@@ -1,13 +1,17 @@
 from PyQt5.QtCore import QSettings
+from PyQt5.QtWidgets import QFileDialog
 
 from multi_video import orgName, appName
 from pyqt_settings.factory.base import InitArgWidgetFactory
+from pyqt_settings.factory.config_fun import ConfigFunc
 from pyqt_settings.field.boolean import BoolField
 from pyqt_settings.field.control import ControlledField
 from pyqt_settings.field.integer import IntField
 from pyqt_settings.field.list import ListField
+from pyqt_settings.field.path import PathField
 from pyqt_settings.field.string import StrField
 from pyqt_settings.gui_widget.combo_box import ComboBoxFieldWidget
+from pyqt_settings.gui_widget.path_line_edit import PathLineEdit
 
 
 class _Settings(QSettings):
@@ -32,6 +36,14 @@ class _Settings(QSettings):
         IS_RANDOM_PART_ACTIVE, RANDOM_PART_DURATION)
 
     VLC_SLEEP_TIME_LLmsJJ = IntField('vlc/sleepTime', default=1000)
+
+    TAG_DIR = PathField('AddFromTag/tagDir')
+    TAG_DIR.widgetFactory = InitArgWidgetFactory(
+        PathLineEdit, configFunctions=(
+            ConfigFunc(QFileDialog.setFileMode, QFileDialog.Directory),
+            ConfigFunc(QFileDialog.setWindowTitle, "Select tag directory"))
+    )
+    TAG_DEFAULT_ACTION = StrField('AddFromTag/defaultAction')
 
 
 videoSettings = _Settings(orgName, appName)
