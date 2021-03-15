@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 
 from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 from pyqt_utils.python.time_status_bar import changeStatusDec
 
 logger = logging.getLogger(__name__)
@@ -21,9 +21,10 @@ class _ExtensionSet:
         return item in self._extensions or item[1:] in self._extensions
 
 
-class DropManager(BaseWindow):
-    def __init__(self, *args):
-        super().__init__(*args)
+class DropManager(BaseVideoWindow):
+
+    def __post_init__(self, *args, **kwargs):
+        super().__post_init__(*args, **kwargs)
         self.setAcceptDrops(True)
         self._successDrop = False
         self._allowedExtensions = _ExtensionSet(())

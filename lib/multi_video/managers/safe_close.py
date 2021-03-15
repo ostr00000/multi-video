@@ -3,10 +3,10 @@ from PyQt5.QtWidgets import QMessageBox
 from decorator import decorator
 
 from multi_video.qobjects.settings import videoSettings
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 
 
-class SafeCloseManager(BaseWindow):
+class SafeCloseManager(BaseVideoWindow):
 
     @staticmethod
     @decorator

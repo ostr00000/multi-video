@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QAction, QToolButton, QDialog, QFileDialog, QInputDi
 from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
 from multi_video.ui.ui_select_tag import Ui_SelectTagDialog
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 from pyqt_utils.metaclass.slot_decorator import SlotDecoratorMeta
 from pyqt_utils.python.time_status_bar import changeStatusDec
 from tag_space_tools.core.tag_finder import TagFinder
@@ -120,10 +120,10 @@ class _SelectTagDialog(QDialog, Ui_SelectTagDialog, metaclass=SlotDecoratorMeta)
                 genSeq.append(firstGen)
 
 
-class AddFromTag(BaseWindow):
+class AddFromTag(BaseVideoWindow):
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __post_init__(self, *args, **kwargs):
+        super().__post_init__(*args, **kwargs)
         self._createToolButton()
         self._replaceActionToToolButton()
         self._setDefaultAction()

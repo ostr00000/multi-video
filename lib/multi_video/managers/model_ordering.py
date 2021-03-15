@@ -3,13 +3,13 @@ from PyQt5.QtWidgets import QFileDialog
 
 from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 from pyqt_utils.python.time_status_bar import changeStatusDec
 
 
-class ModelManagement(BaseWindow):
-    def __post_init__(self):
-        super().__post_init__()
+class ModelManagement(BaseVideoWindow):
+    def __post_init__(self, *args, **kwargs):
+        super().__post_init__(*args, **kwargs)
 
         self.actionAdd.triggered.connect(self.onAdd)
         self.actionDelete.triggered.connect(self.onDelete)

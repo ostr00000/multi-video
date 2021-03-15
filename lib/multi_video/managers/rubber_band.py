@@ -6,21 +6,20 @@ from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QRubberBand, QToolButton, QMessageBox
 
 from multi_video.model.video import VideoModel
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 from pyqt_utils.python.time_status_bar import changeStatusDec
 
 
-class RubberBandManager(BaseWindow):
+class RubberBandManager(BaseVideoWindow):
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __pre_init__(self, *args, **kwargs):
+        super().__pre_init__(*args, **kwargs)
         self.rubberBand: Optional[QRubberBand] = None
         self.rubberBandActive = False
         self.rubberBandStartPos: Optional[QPoint] = None
 
-    def __post_init__(self):
-        super().__post_init__()
-
+    def __post_init__(self, *args, **kwargs):
+        super().__post_init__(*args, **kwargs)
         self.actionSet_Position.triggered.connect(self.onSetPosition)
 
     @changeStatusDec(msg="Set position.")

@@ -2,13 +2,13 @@ from PyQt5.QtCore import QEvent, QObject
 from PyQt5.QtGui import QKeyEvent, QKeySequence
 from PyQt5.QtWidgets import QAction
 
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 
 
-class EventFilterForActionManager(BaseWindow):
+class EventFilterForActionManager(BaseVideoWindow):
 
-    def __post_init__(self):
-        super().__post_init__()
+    def __post_init__(self, *args, **kwargs):
+        super().__post_init__(*args, **kwargs)
         self._strShortcutToAction = {}
 
         for obj in self.__dict__.values():

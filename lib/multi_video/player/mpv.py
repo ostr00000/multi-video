@@ -8,14 +8,14 @@ from PyQt5.QtWidgets import QApplication
 from multi_video.model.row import Row
 from multi_video.player.base import BasePlayer
 from multi_video.qobjects.widget.mpv_player_group import MpvPlayerGroupWidget
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 
 logger = logging.getLogger(__name__)
 
 
 class MpvPlayer(BasePlayer):
 
-    def __init__(self, baseWindow: BaseWindow, *args):
+    def __init__(self, baseWindow: BaseVideoWindow, *args):
         super().__init__(baseWindow, *args)
         self._playerWidgetGroup: Optional[MpvPlayerGroupWidget] = None
 

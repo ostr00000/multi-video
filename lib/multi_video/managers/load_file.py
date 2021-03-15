@@ -4,22 +4,20 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog
 
 from multi_video.managers.safe_close import SafeCloseManager
 from multi_video.qobjects.settings import videoSettings
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 from pyqt_utils.python.time_status_bar import changeStatusDec
 
 logger = logging.getLogger(__name__)
 
 
-class LoadFileManager(BaseWindow):
-    def __init__(self, *args):
-        super().__init__(*args)
-        self._lastJson = None
+class LoadFileManager(BaseVideoWindow):
 
+    def __post_init__(self, *args, **kwargs):
+        super().__post_init__(*args, **kwargs)
+
+        self._lastJson = None
         if path := videoSettings.LAST_PATH:
             self._loadConfiguration(path)
-
-    def __post_init__(self):
-        super().__post_init__()
 
         self.actionNew.triggered.connect(self.onNew)
         self.actionLoad.triggered.connect(self.onLoad)

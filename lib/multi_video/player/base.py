@@ -1,10 +1,10 @@
 from abc import ABC
 
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 
 
 class BasePlayer(ABC):
-    def __init__(self, baseWindow: BaseWindow, *args):
+    def __init__(self, baseWindow: BaseVideoWindow, *args):
         self.baseWindow = baseWindow
         self.model = baseWindow.model
         super().__init__(*args)

@@ -3,17 +3,15 @@ import logging
 from PyQt5.QtWidgets import QFileDialog
 
 from multi_video.qobjects.settings import videoSettings
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 from pyqt_utils.python.time_status_bar import changeStatusDec
 
 logger = logging.getLogger(__name__)
 
 
-class SaveFileManager(BaseWindow):
-
-    def __post_init__(self):
-        super().__post_init__()
-
+class SaveFileManager(BaseVideoWindow):
+    def __post_init__(self, *args, **kwargs):
+        super().__post_init__(*args, **kwargs)
         self.actionSave_As.triggered.connect(self.onSaveAs)
         self.actionSave.triggered.connect(self.onSave)
 

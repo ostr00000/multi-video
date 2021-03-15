@@ -7,16 +7,15 @@ from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
 from multi_video.utils.commands import runCommand
 from multi_video.utils.split_window import calculatePosition
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 from pyqt_utils.python.time_status_bar import changeStatusDec
 
 
-class PositionManager(BaseWindow):
+class PositionManager(BaseVideoWindow):
     VLC_FILE_ARG_PATTERN = re.compile(r'.*vlc.*--started-from-file( \'?.*\.\w+\'?)+')
 
-    def __post_init__(self):
-        super().__post_init__()
-
+    def __post_init__(self, *args, **kwargs):
+        super().__post_init__(*args, **kwargs)
         self.actionFind_Opened.triggered.connect(self.onFindOpened)
         self.actionAssign.triggered.connect(self.onRedistribute)
 

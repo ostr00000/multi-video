@@ -1,14 +1,13 @@
 import random
 
 from multi_video.qobjects.settings import videoSettings
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 from pyqt_utils.python.time_status_bar import changeStatusDec
 
 
-class ShuffleManager(BaseWindow):
-    def __post_init__(self):
-        super().__post_init__()
-
+class ShuffleManager(BaseVideoWindow):
+    def __post_init__(self, *args, **kwargs):
+        super().__post_init__(*args, **kwargs)
         self.actionShuffle.triggered.connect(self.onShuffle)
 
     @changeStatusDec(msg="Data shuffled.")

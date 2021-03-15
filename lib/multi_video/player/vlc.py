@@ -15,13 +15,13 @@ from multi_video.qobjects.settings import videoSettings
 from multi_video.utils.commands import runCommand
 from multi_video.utils.iterator_wrappers import dataChangeIterator, processEventsIterator
 from multi_video.utils.window_collector import WindowCollector
-from multi_video.window.base import BaseWindow
+from multi_video.window.base import BaseVideoWindow
 
 logger = logging.getLogger(__name__)
 
 
 class VlcPlayer(BasePlayer):
-    def __init__(self, baseWindow: BaseWindow, *args):
+    def __init__(self, baseWindow: BaseVideoWindow, *args):
         super().__init__(baseWindow, *args)
 
         self._processes: List[Popen] = []
