@@ -25,6 +25,8 @@ class VideoModel(DirtyModel):
         COL_WID: 'Window ids',
     }
 
+    RowRole = Qt.UserRole
+
     def __init__(self, *args):
         super().__init__(*args)
         self._data: List[Row] = []
@@ -43,7 +45,7 @@ class VideoModel(DirtyModel):
         return len(VideoModel.headers)
 
     def data(self, index: QModelIndex, role: int = ...):
-        if role not in (Qt.DisplayRole, Qt.ToolTipRole):
+        if role not in (Qt.DisplayRole, Qt.ToolTipRole, Qt.UserRole):
             return
 
         if not index.isValid():
@@ -52,6 +54,9 @@ class VideoModel(DirtyModel):
         row = self._data[index.row()]
         if index.column() == VideoModel.COL_FILES and role == Qt.DisplayRole:
             return str(row)
+
+        if role == Qt.UserRole:
+            return row
 
         obj = astuple(row)[index.column()]
         if isinstance(obj, list):
