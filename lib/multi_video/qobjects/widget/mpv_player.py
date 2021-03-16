@@ -98,7 +98,7 @@ class MpvPlayerWidget(QWidget):
         logger.log(level, f'{id(self)}[{component}]: {message}')
 
     @ignoreShutdown
-    def onFileChanged(self, propertyName, propertyValue):
+    def onFileChanged(self, propertyName, propertyValue, timeDelay=0.3):
         if self.player.filename != propertyValue:
             return
         if not videoSettings.IS_RANDOM_PART_ACTIVE:
@@ -111,7 +111,8 @@ class MpvPlayerWidget(QWidget):
                 self._setRandomPosition()
                 logger.debug(f"[{id(self)}] set random position - new file")
         else:
-            Timer(0.3, self.onFileChanged, args=(propertyName, propertyValue)).start()
+            Timer(timeDelay, self.onFileChanged,
+                  args=(propertyName, propertyValue, timeDelay * 2)).start()
             logger.debug(f"[{id(self)}] no duration property - try again")
 
     def _setRandomPosition(self):

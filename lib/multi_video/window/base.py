@@ -29,7 +29,7 @@ class BaseVideoWindow(Ui_MultiVideoMainWindow, BaseWidget, QMainWindow,
             videoSettings, icon=QIcon(), parent=self.menuBar()))
 
         self.tableView.setModel(self.model)
-        self.tableView.setColumnWidth(VideoModel.COL_FILES, 400)
+        self.tableView.setColumnWidth(VideoModel.COL_NAME, 400)
         self.tableView.selectionModel().selectionChanged.connect(self._showSelectedCount)
 
         sb = TimeStatusBar(self)

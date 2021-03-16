@@ -23,7 +23,7 @@ class ModelManagement(BaseVideoWindow):
         files, _ext = QFileDialog.getOpenFileNames(
             self, "Select files to open", filter=f"Films ({extensions})")
         if files:
-            self.model.appendRow(Row(files))
+            self.model.appendRow(Row(files=files))
             return True
 
     @changeStatusDec(msg="Rows deleted.")

@@ -9,7 +9,7 @@ from PyQt5.QtCore import QEventLoop, QTimer, QStandardPaths
 from boltons.cacheutils import cachedproperty
 
 from multi_video import appName
-from multi_video.model.row import Row
+from multi_video.model.row import BaseRow
 from multi_video.player.base import BasePlayer
 from multi_video.qobjects.settings import videoSettings
 from multi_video.utils.commands import runCommand
@@ -47,7 +47,7 @@ class VlcPlayer(BasePlayer):
 
         for row in dataChangeIterator(
                 processEventsIterator(self.model),
-                self.model, self.model.COL_PID, self.model.COL_WID):  # type: Row
+                self.model, self.model.COL_PID, self.model.COL_WID):  # type: BaseRow
 
             if not self._isStarting:
                 return
@@ -70,7 +70,7 @@ class VlcPlayer(BasePlayer):
         self.baseWindow.raise_()
 
     @staticmethod
-    def resizeAndMove(row: Row):
+    def resizeAndMove(row: BaseRow):
         commands = []
         for wid in row.wid[:6]:  # unknown order of layer - may shadow qt interface
             commands.append(f'xdotool windowsize {wid} {row.size[0]} {row.size[1]}')
@@ -79,8 +79,8 @@ class VlcPlayer(BasePlayer):
         commandsStr = ' && '.join(commands)
         runCommand(commandsStr)
 
-    def _runProcess(self, row: Row) -> Popen:
-        files = ' '.join(f"'{f}'" for f in row.files)
+    def _runProcess(self, row: BaseRow) -> Popen:
+        files = ' '.join(f"'{f}'" for f in row.getFiles())
         cmd = f'vlc --verbose 3 --intf qt --extraintf rc ' \
               f'--qt-minimal-view --started-from-file {files}'
         logger.debug(cmd)
@@ -88,7 +88,7 @@ class VlcPlayer(BasePlayer):
         logFile = self.getLogFile(row)
         return Popen(cmd, shell=True, stderr=logFile, stdout=logFile, stdin=PIPE)
 
-    def getLogFile(self, row: Row):
+    def getLogFile(self, row: BaseRow):
         filePath = os.path.join(self.logDir, f'{row.position}_{uuid.uuid4()}')
         logFile = open(filePath, 'w')
         return logFile

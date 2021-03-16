@@ -5,7 +5,7 @@ from typing import Optional, List
 from PyQt5.QtCore import QEventLoop
 from PyQt5.QtWidgets import QApplication
 
-from multi_video.model.row import Row
+from multi_video.model.row import BaseRow
 from multi_video.player.base import BasePlayer
 from multi_video.qobjects.widget.mpv_player_group import MpvPlayerGroupWidget
 from multi_video.window.base import BaseVideoWindow
@@ -39,11 +39,14 @@ class MpvPlayer(BasePlayer):
 
         return True
 
-    def _startPlayers(self, rows: List[Row]):
+    def _startPlayers(self, rows: List[BaseRow]):
         try:
             for i, row in enumerate(rows):
-                self._playerWidgetGroup.playInWidget(i, row.files)
-                logger.debug(f'Start playing widget {i}')
+                if files := row.getFiles():
+                    self._playerWidgetGroup.playInWidget(i, files)
+                    logger.debug(f'Start playing widget {i}')
+                else:
+                    logger.debug(f'Skipping widget {i} - no files')
         except (AttributeError, KeyError):
             logger.debug("user closed window while starting")
 

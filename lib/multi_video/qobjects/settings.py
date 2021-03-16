@@ -21,6 +21,10 @@ class _Settings(QSettings):
     DRAG_MULTIPLE_CREATE_ONE = BoolField('load/dragMultipleCreateOne', default=True)
     DRAG_CREATE_RECURSIVE = BoolField('load/dragCreateRecursive', default=True)
 
+    @property
+    def allowedExtensionsWithDot(self) -> list[str]:
+        return ['.' + ae for ae in videoSettings.ALLOWED_EXTENSIONS]
+
     VIDEO_PLAYER = StrField('video/player', default='vlc')
     VIDEO_PLAYER.widgetFactory = InitArgWidgetFactory(ComboBoxFieldWidget, 'vlc', 'mpv')
 

@@ -3,7 +3,7 @@ from typing import List
 
 from PyQt5.QtWidgets import QApplication
 
-from multi_video.model.row import Row
+from multi_video.model.row import Row, BaseRow
 from multi_video.qobjects.settings import videoSettings
 from multi_video.utils.commands import runCommand
 from multi_video.utils.split_window import calculatePosition
@@ -30,7 +30,7 @@ class PositionManager(BaseVideoWindow):
     @changeStatusDec(msg="Configuration redistributed.")
     def onRedistribute(self):
         """Automatically set size and position for vlc"""
-        data: List[Row] = list(iter(self.model))
+        data: List[BaseRow] = list(iter(self.model))
 
         screen = QApplication.primaryScreen().availableGeometry()
         newPositions = calculatePosition(data, screen.width(), screen.height())

@@ -19,7 +19,7 @@ class ShuffleManager(BaseVideoWindow):
         self.model.clean()
         for row in data:
             if shuffleInternal:
-                random.shuffle(row.files)
+                row.shuffle()
             self.model.appendRow(row)
 
         return True

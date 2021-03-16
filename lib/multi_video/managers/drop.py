@@ -115,10 +115,10 @@ class DropManager(BaseVideoWindow):
             return
 
         if self._createOneRow:
-            self.model.appendRow(Row(validFiles))
+            self.model.appendRow(Row(files=validFiles))
 
         else:
             for vf in validFiles:
-                self.model.appendRow(Row([vf]))
+                self.model.appendRow(Row(files=[vf]))
 
         self._successDrop = True

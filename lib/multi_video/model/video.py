@@ -1,35 +1,32 @@
 import json
-from dataclasses import astuple
-from pprint import pformat
+import logging
 from typing import List, Dict
 
 from PyQt5.QtCore import QModelIndex, Qt, QRect
 
 from multi_video.model.dirty import DirtyModel
-from multi_video.model.row import Row
+from multi_video.model.row import BaseRow
 from multi_video.utils.split_window import Position
+
+logger = logging.getLogger(__name__)
 
 
 class VideoModel(DirtyModel):
-    COL_FILES = 0
+    COL_NAME = 0
     COL_POSITION = 1
     COL_SIZE = 2
-    COL_PID = 3
-    COL_WID = 4
 
     headers = {
-        COL_FILES: 'Files',
+        COL_NAME: 'Files',
         COL_POSITION: 'Position (x, y)',
         COL_SIZE: 'Size (x, y)',
-        COL_PID: 'Process id',
-        COL_WID: 'Window ids',
     }
 
     RowRole = Qt.UserRole
 
     def __init__(self, *args):
         super().__init__(*args)
-        self._data: List[Row] = []
+        self._data: List[BaseRow] = []
 
     def flags(self, index: QModelIndex):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -52,16 +49,18 @@ class VideoModel(DirtyModel):
             return
 
         row = self._data[index.row()]
-        if index.column() == VideoModel.COL_FILES and role == Qt.DisplayRole:
-            return str(row)
-
         if role == Qt.UserRole:
             return row
 
-        obj = astuple(row)[index.column()]
-        if isinstance(obj, list):
-            obj = pformat(obj)
-        return str(obj)
+        if index.column() == VideoModel.COL_NAME:
+            return str(row)
+        elif index.column() == VideoModel.COL_POSITION:
+            return str(row.position)
+        elif index.column() == VideoModel.COL_SIZE:
+            if role == Qt.ToolTipRole:
+                return f"Total files: {len(row.getFiles())}"
+            else:
+                return str(row.size)
 
     @DirtyModel.dirtyDec
     def setData(self, index: QModelIndex, value, role: int = ...):
@@ -82,7 +81,7 @@ class VideoModel(DirtyModel):
         return True
 
     @DirtyModel.dirtyDec
-    def appendRow(self, row: Row):
+    def appendRow(self, row: BaseRow):
         i = len(self._data)
         self.beginInsertRows(QModelIndex(), i, i)
         self._data.append(row)
@@ -105,8 +104,14 @@ class VideoModel(DirtyModel):
     @DirtyModel.cleanDec
     def loadJson(self, jsonObj):
         self.beginResetModel()
-        obj: List = json.loads(jsonObj)
-        obj = [Row(**d) for d in obj]
+
+        obj = []
+        for d in json.loads(jsonObj):
+            try:
+                obj.append(BaseRow.fromDict(d))
+            except TypeError as te:
+                logger.error(te)
+
         self._data = obj
         self.endResetModel()
 
@@ -120,7 +125,7 @@ class VideoModel(DirtyModel):
         e = self.index(r, len(self.headers))
         self.dataChanged.emit(s, e)
 
-    def setPositionAndSize(self, newValues: Dict[Row, Position]):
+    def setPositionAndSize(self, newValues: Dict[BaseRow, Position]):
         self.beginResetModel()
 
         for row in self._data:
