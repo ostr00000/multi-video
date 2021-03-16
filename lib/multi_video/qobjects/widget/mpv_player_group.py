@@ -1,16 +1,39 @@
 import logging
 from typing import List, Dict
 
-from PyQt5.QtCore import QSize, Qt, QEvent, QObject
+from PyQt5.QtCore import QSize, Qt, QEvent, QObject, pyqtProperty
 from PyQt5.QtGui import QCloseEvent, QMouseEvent
-from PyQt5.QtWidgets import QWidget, QGridLayout
+from PyQt5.QtWidgets import QWidget, QGridLayout, QFrame, QHBoxLayout
 
 from multi_video.qobjects.settings import videoSettings
-from multi_video.qobjects.widget.mpv_player import MpvPlayerWidget
+from multi_video.qobjects.widget.mpv_player import MpvPlayerWidget, ignoreShutdown
 from multi_video.utils.split_window import calculatePosition, getMinimumRectangle
 from pyqt_utils.metaclass.geometry_saver import GeometrySaverMeta
 
 logger = logging.getLogger(__name__)
+
+
+class _FrameWrapper(QFrame):
+    def __init__(self, contentWidget: MpvPlayerWidget, parent=None):
+        super().__init__(parent)
+        self._layout = QHBoxLayout(self)
+        self._layout.addWidget(contentWidget)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+
+        contentWidget.player.observe_property('mute', self.onMuteChanged)
+        self._mute = contentWidget.player.mute
+        self.setStyleSheet('QFrame[mute="false"]{ border:1px solid yellow; }')
+
+    @ignoreShutdown
+    def onMuteChanged(self, propertyName: str, propertyValue: bool):
+        assert propertyName == 'mute'
+        self._mute = propertyValue
+        self.setStyleSheet(self.styleSheet())
+
+    def getMute(self):
+        return self._mute
+
+    mute = pyqtProperty(bool, getMute)
 
 
 class MpvPlayerGroupWidget(QWidget,
@@ -21,6 +44,8 @@ class MpvPlayerGroupWidget(QWidget,
         super().__init__(parent)
         self.setAttribute(Qt.WA_DeleteOnClose)
         self._layout = QGridLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
         self._players: Dict[int, MpvPlayerWidget] = {}
 
     def createSubWidgets(self, iterable):
@@ -37,9 +62,10 @@ class MpvPlayerGroupWidget(QWidget,
 
     def createSubWidget(self, row, column, rowSpan, columnSpan):
         pl = MpvPlayerWidget(self)
+        fw = _FrameWrapper(pl, self)
         pl.installEventFilter(self)
         self._players[len(self._players)] = pl
-        self._layout.addWidget(pl, row, column, rowSpan, columnSpan)
+        self._layout.addWidget(fw, row, column, rowSpan, columnSpan)
 
         logger.debug(f"Created player {id(pl)} [number={len(self._players)}]")
 
