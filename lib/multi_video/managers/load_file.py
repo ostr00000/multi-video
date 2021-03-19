@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QMessageBox, QFileDialog
 from multi_video.managers.safe_close import SafeCloseManager
 from multi_video.qobjects.settings import videoSettings
 from multi_video.window.base import BaseVideoWindow
-from pyqt_utils.python.time_status_bar import changeStatusDec
+from pyqt_utils.widgets.time_status_bar import changeStatusDec
 
 logger = logging.getLogger(__name__)
 

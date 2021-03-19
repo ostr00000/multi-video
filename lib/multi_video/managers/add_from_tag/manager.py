@@ -7,7 +7,7 @@ from multi_video.managers.add_from_tag.select_tag_dialog import SelectTagDialog
 from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
 from multi_video.window.base import BaseVideoWindow
-from pyqt_utils.python.time_status_bar import changeStatusDec
+from pyqt_utils.widgets.time_status_bar import changeStatusDec
 
 
 class AddFromTag(BaseVideoWindow):

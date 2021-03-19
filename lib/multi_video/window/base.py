@@ -9,8 +9,8 @@ from multi_video.qobjects.widget.model_count import ModelCountWidget
 from multi_video.ui.ui_multi_video import Ui_MultiVideoMainWindow
 from pyqt_settings.action import SettingDialogAction
 from pyqt_utils.metaclass.slot_decorator import SlotDecoratorMeta
-from pyqt_utils.python.time_status_bar import TimeStatusBar
-from pyqt_utils.ui_base_widget import BaseWidget
+from pyqt_utils.widgets.base_widget import BaseWidget
+from pyqt_utils.widgets.time_status_bar import TimeStatusBar
 
 logger = logging.getLogger(__name__)
 

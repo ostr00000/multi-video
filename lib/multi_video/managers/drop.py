@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
 from multi_video.window.base import BaseVideoWindow
-from pyqt_utils.python.time_status_bar import changeStatusDec
+from pyqt_utils.widgets.time_status_bar import changeStatusDec
 
 logger = logging.getLogger(__name__)
 
