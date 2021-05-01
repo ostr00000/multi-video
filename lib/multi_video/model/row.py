@@ -73,7 +73,7 @@ class OpenFileFolderAction(QAction):
         self.triggered.connect(self.onTriggered)
 
     def onTriggered(self):
-        runProcessAsync(f"xdg-open '{str(self.filePath.parent.absolute())}'")
+        runProcessAsync(['xdg-open', self.filePath.parent.absolute().__fspath__()])
 
 
 @dataclass
