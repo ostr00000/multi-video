@@ -43,6 +43,7 @@ class _Settings(QSettings):
             ConfigFunc(QFileDialog.setFileMode, QFileDialog.Directory),
             ConfigFunc(QFileDialog.setWindowTitle, "Select tag directory")]
     )
+    TAG_CACHE = ListField('AddFromTag/cache', castType=str)
 
     TAG_DEFAULT_ACTION = StrField('AddFromTag/defaultAction')
 

@@ -10,6 +10,7 @@ from multi_video.model.row import RowGen
 from multi_video.qobjects.settings import videoSettings
 from multi_video.ui.ui_select_tag import Ui_SelectTagDialog
 from pyqt_utils.metaclass.slot_decorator import SlotDecoratorMeta
+from pyqt_utils.python.decorators import cursorDec
 from pyqt_utils.widgets.base_widget import BaseWidget
 from tag_space_tools.core.tag_finder import TagFinder
 
@@ -22,14 +23,19 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
 
     def __post_init__(self, *args, **kwargs):
         super().__post_init__(*args, **kwargs)
+        if tagCache := videoSettings.TAG_CACHE:
+            self.setTags(tagCache)
+
+        if lastVal := videoSettings.TAG_DIR:
+            self.tagDirLineEdit.setText(lastVal)
+            if not tagCache:
+                self.onTagDirChanged(lastVal)
+
         self.tagDirLineEdit.textChanged.connect(self.onTagDirChanged)
         self.changeTagDirButton.clicked.connect(self.onChangeTagDir)
         self.buttonAdd.clicked.connect(self.onAddTag)
         self.buttonRemove.clicked.connect(self.onRemoveTag)
-
-        if lastVal := videoSettings.TAG_DIR:
-            self.tagDirLineEdit.setText(lastVal)
-
+        self.refreshButton.clicked.connect(self.onRefreshButtonClicked)
         self.listWidget.currentTextChanged.connect(self.onCurrentTextChanged)
 
     def refreshCounter(self):
@@ -50,6 +56,10 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
             self.tagDirLineEdit.setText('')  # To send signal
             self.tagDirLineEdit.setText(tagDirectory)
 
+    def onRefreshButtonClicked(self):
+        self.onTagDirChanged(self.tagDirLineEdit.text())
+
+    @cursorDec
     def onTagDirChanged(self, text):
         if not text:
             return
@@ -61,6 +71,10 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
             return
 
         videoSettings.TAG_DIR = text
+        self.setTags(items)
+
+    def setTags(self, items: List[str]):
+        videoSettings.TAG_CACHE = items
         self.tagComboBox.clear()
         self.tagComboBox.addItems(items)
         self.tagComboBox.setEnabled(True)
