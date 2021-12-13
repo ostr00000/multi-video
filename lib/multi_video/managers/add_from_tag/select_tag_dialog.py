@@ -32,6 +32,9 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
 
         self.listWidget.currentTextChanged.connect(self.onCurrentTextChanged)
 
+    def refreshCounter(self):
+        self.selectedTagLabel.setText(str(self.listWidget.count()))
+
     def onChangeTagDir(self):
         baseTagDir = Path(self.tagDirLineEdit.text())
 
@@ -67,6 +70,7 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
     def onAddTag(self):
         if tagName := self.tagComboBox.currentText():
             self.listWidget.addItem(tagName)
+            self.refreshCounter()
 
     def onRemoveTag(self):
         for item in self.listWidget.selectedItems():
@@ -74,6 +78,7 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
 
         if self.listWidget.count() == 0:
             self.buttonRemove.setEnabled(False)
+        self.refreshCounter()
 
     @pyqtSlot(str)
     def onCurrentTextChanged(self, currentText: str):
