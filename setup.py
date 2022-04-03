@@ -4,7 +4,7 @@ setup(
     name='multi-video',
     version='0.5',
     python_requires='>=3.8',
-    description='Tool to run many video at same time.',
+    description="Tool to run many video at same time.",
 
     package_dir={'': 'lib'},
     packages=find_packages(exclude=("*test*",)),
