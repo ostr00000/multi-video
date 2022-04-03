@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QDialog, QFileDialog
 
 from multi_video.model.row import RowGen
 from multi_video.qobjects.settings import videoSettings
-from multi_video.ui.ui_select_tag import Ui_SelectTagDialog
+from multi_video.ui.select_tag_ui import Ui_SelectTagDialog
 from pyqt_utils.metaclass.slot_decorator import SlotDecoratorMeta
 from pyqt_utils.python.decorators import cursorDec
 from pyqt_utils.widgets.base_widget import BaseWidget

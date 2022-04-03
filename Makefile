@@ -1,30 +1,18 @@
 MAIN_PACKAGE_NAME=multi_video
 
 UIC=pyuic5
-RCC=pyrcc5
+UI_DIR=lib/$(MAIN_PACKAGE_NAME)/ui
+UI_FILES=$(wildcard $(UI_DIR)/*.ui)
+COMPILED_UI_FILES=$(UI_FILES:$(UI_DIR)/%.ui=$(UI_DIR)/%_ui.py)
 
-UI_DIR=src/ui
-COMPILED_UI_DIR=lib/$(MAIN_PACKAGE_NAME)/ui
-RESOURCES=src/resources.qrc
 ####################################
 
-UI_FILES=$(wildcard $(UI_DIR)/*.ui)
-COMPILED_UI_FILES=$(UI_FILES:$(UI_DIR)/%.ui=$(COMPILED_UI_DIR)/ui_%.py)
-RESOURCES_SRC=$(shell grep '^ *<file' $(RESOURCES) | sed 's@</file>@@g;s@.*>@src/@g' | tr '\n' ' ')
+.PHONY: all ui compile
 
-all: ui resources
+all: ui
 	@echo "Make all finished"
-
 
 ui: $(COMPILED_UI_FILES)
 
-$(COMPILED_UI_DIR)/ui_%.py : $(UI_DIR)/%.ui
+$(UI_DIR)/%_ui.py : $(UI_DIR)/%.ui
 	$(UIC) $< --from-imports -o $@
-
-resources: $(COMPILED_UI_DIR)/resources_rc.py
-
-$(COMPILED_UI_DIR)/resources_rc.py: $(RESOURCES) $(RESOURCES_SRC)
-	$(RCC) -o $(COMPILED_UI_DIR)/resources_rc.py  $<
-
-
-.PHONY: all ui resources compile

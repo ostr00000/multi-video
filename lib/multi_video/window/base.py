@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QMainWindow
 from multi_video.model.video import VideoModel
 from multi_video.qobjects.settings import videoSettings
 from multi_video.qobjects.widget.model_count import ModelCountWidget
-from multi_video.ui.ui_multi_video import Ui_MultiVideoMainWindow
+from multi_video.ui.multi_video_ui import Ui_MultiVideoMainWindow
 from pyqt_settings.action import SettingDialogAction
 from pyqt_utils.metaclass.slot_decorator import SlotDecoratorMeta
 from pyqt_utils.widgets.base_widget import BaseWidget
