@@ -16,7 +16,7 @@ class Ui_MultiVideoMainWindow(object):
         MultiVideoMainWindow.setObjectName("MultiVideoMainWindow")
         MultiVideoMainWindow.resize(1177, 474)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("lib/multi_video/ui/../resources/main_icon.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("game-manager:main_icon.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MultiVideoMainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MultiVideoMainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -192,3 +192,4 @@ class Ui_MultiVideoMainWindow(object):
         self.actionNew.setText(_translate("MultiVideoMainWindow", "&New"))
         self.actionNew.setShortcut(_translate("MultiVideoMainWindow", "Ctrl+N"))
         self.actionShuffle.setText(_translate("MultiVideoMainWindow", "S&huffle"))
+from . import resource_rc

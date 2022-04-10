@@ -16,3 +16,7 @@ ui: $(COMPILED_UI_FILES)
 
 $(UI_DIR)/%_ui.py : $(UI_DIR)/%.ui
 	$(UIC) $< --from-imports -o $@
+	sed -i 's=":\/="game-manager:=g' $@
+	@if grep -m 1 -q 'resource_rc' $@ ; then \
+		touch $(dir $@)/resource_rc.py ; \
+  	fi

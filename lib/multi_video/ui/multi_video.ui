@@ -14,8 +14,8 @@
    <string>[*]Multi Video Manager[*]</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>../resources/main_icon.jpg</normaloff>../resources/main_icon.jpg</iconset>
+   <iconset resource="../resources/resource.qrc">
+    <normaloff>:/main_icon.jpg</normaloff>:/main_icon.jpg</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -304,5 +304,8 @@
    </property>
   </action>
  </widget>
+ <resources>
+  <include location="../resources/resource.qrc"/>
+ </resources>
  <connections/>
 </ui>
