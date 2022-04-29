@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import TypeVar, Tuple, List, Iterable
+from typing import TypeVar, Iterable
 
 import more_itertools
 from PyQt5.QtCore import pyqtSlot
@@ -66,14 +66,14 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
 
         try:
             items = TagFinder(text).findAllTags()
-        except IOError as e:
+        except OSError as e:
             logger.error(e)
             return
 
         videoSettings.TAG_DIR = text
         self.setTags(items)
 
-    def setTags(self, items: List[str]):
+    def setTags(self, items: list[str]):
         videoSettings.TAG_CACHE = items
         self.tagComboBox.clear()
         self.tagComboBox.addItems(items)
@@ -98,7 +98,7 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
     def onCurrentTextChanged(self, currentText: str):
         self.buttonRemove.setEnabled(bool(currentText))
 
-    def getTagFiles(self) -> Tuple[List[str], List[str]]:
+    def getTagFiles(self) -> tuple[list[str], list[str]]:
         if not (tagPath := self.tagDirLineEdit.text()):
             return [], []
 

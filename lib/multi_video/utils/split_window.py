@@ -1,11 +1,11 @@
 import math
 from dataclasses import dataclass
-from typing import Iterable, Collection, Sized, TypeVar, Generator, Tuple, Dict
+from typing import Iterable, Collection, Sized, TypeVar, Generator
 
 _X = TypeVar('_X')
 
 
-def tileGen(cx: int, cy: int) -> Iterable[Tuple[int, int]]:
+def tileGen(cx: int, cy: int) -> Iterable[tuple[int, int]]:
     """
     list(tileGen(2, 3))
     [(1, 2), (0, 2), (1, 1), (0, 1), (1, 0), (0, 0)]
@@ -97,7 +97,7 @@ def getMinimumRectangle(elements: Sized):
     assert False
 
 
-def calculatePosition(elements: Collection[_X], width: int, height: int) -> Dict[_X, Position]:
+def calculatePosition(elements: Collection[_X], width: int, height: int) -> dict[_X, Position]:
     """Return map with elements mapped to Position"""
     cx, cy = getMinimumRectangle(elements)
 

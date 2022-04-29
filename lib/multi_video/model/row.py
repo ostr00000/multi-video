@@ -3,7 +3,7 @@ import random
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Tuple, Optional, Any
+from typing import Any
 
 from PyQt5.QtWidgets import QAction, QMenu
 
@@ -29,10 +29,10 @@ class DataClass(Enum):
 @dataclass
 class BaseRow(DataClass):
     hashId: str = field(default_factory=lambda: uuid.uuid4().__str__())
-    position: Tuple[int, int] = (0, 0)
-    size: Tuple[int, int] = (0, 0)
+    position: tuple[int, int] = (0, 0)
+    size: tuple[int, int] = (0, 0)
     pid: int = -1
-    wid: List[int] = field(default_factory=list)
+    wid: list[int] = field(default_factory=list)
 
     def __hash__(self):
         return hash(self.hashId)
@@ -56,7 +56,7 @@ class BaseRow(DataClass):
     def __str__(self):
         raise NotImplementedError
 
-    def getContextMenu(self, parentMenu: QMenu) -> Optional[QAction]:
+    def getContextMenu(self, parentMenu: QMenu) -> QAction | None:
         raise NotImplementedError
 
     def getFiles(self) -> list[str]:
@@ -78,7 +78,7 @@ class OpenFileFolderAction(QAction):
 
 @dataclass
 class Row(BaseRow):
-    files: List[str] = field(default_factory=list)
+    files: list[str] = field(default_factory=list)
 
     def __hash__(self):
         return super().__hash__()
@@ -95,7 +95,7 @@ class Row(BaseRow):
     def __str__(self):
         return ','.join(map(os.path.basename, self.files))
 
-    def getContextMenu(self, parentMenu: QMenu) -> Optional[QAction]:
+    def getContextMenu(self, parentMenu: QMenu) -> QAction | None:
         menu = parentMenu.addMenu("Open file folder")
 
         for filePathStr in self.files:
@@ -119,7 +119,7 @@ class RowGen(BaseRow):
     def toDict(self) -> dict[str, Any]:
         return super().getDict() | {'path': self.path, 'tag': self.tag}
 
-    def getContextMenu(self, parentMenu: QMenu) -> Optional[QAction]:
+    def getContextMenu(self, parentMenu: QMenu) -> QAction | None:
         action = OpenFileFolderAction(
             Path(self.path) / 'child', text="Open root tag folder",
             parent=parentMenu)

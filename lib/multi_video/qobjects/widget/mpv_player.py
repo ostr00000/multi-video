@@ -6,7 +6,6 @@ from enum import Enum
 from functools import partial
 from random import randint
 from threading import Timer
-from typing import List
 
 import mpv
 from PyQt5.QtCore import Qt, QPointF
@@ -147,7 +146,7 @@ class MpvPlayerWidget(QWidget):
             logger.debug(f"[{id(self)}] play next")
 
     @ignoreShutdown
-    def play(self, filenames: List[str]):
+    def play(self, filenames: list[str]):
         """For some reason need to wait,
         otherwise deadlock or 'double free or corruption (!prev)' may occur"""
         assert filenames

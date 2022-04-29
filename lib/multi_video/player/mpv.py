@@ -1,6 +1,5 @@
 import logging
 from threading import Thread
-from typing import Optional, List
 
 from PyQt5.QtCore import QEventLoop
 from PyQt5.QtWidgets import QApplication
@@ -17,7 +16,7 @@ class MpvPlayer(BasePlayer):
 
     def __init__(self, baseWindow: BaseVideoWindow, *args):
         super().__init__(baseWindow, *args)
-        self._playerWidgetGroup: Optional[MpvPlayerGroupWidget] = None
+        self._playerWidgetGroup: MpvPlayerGroupWidget | None = None
 
     def onStart(self):
         if self._playerWidgetGroup:
@@ -39,7 +38,7 @@ class MpvPlayer(BasePlayer):
 
         return True
 
-    def _startPlayers(self, rows: List[BaseRow]):
+    def _startPlayers(self, rows: list[BaseRow]):
         try:
             for i, row in enumerate(rows):
                 if files := row.getFiles():

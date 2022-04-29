@@ -1,5 +1,3 @@
-from typing import Optional
-
 from PyQt5 import QtGui
 from PyQt5.QtCore import QPoint, Qt, QRect, QItemSelection, QItemSelectionModel, QEvent
 from PyQt5.QtGui import QMouseEvent
@@ -14,9 +12,9 @@ class RubberBandManager(BaseVideoWindow):
 
     def __pre_init__(self, *args, **kwargs):
         super().__pre_init__(*args, **kwargs)
-        self.rubberBand: Optional[QRubberBand] = None
+        self.rubberBand: QRubberBand | None = None
         self.rubberBandActive = False
-        self.rubberBandStartPos: Optional[QPoint] = None
+        self.rubberBandStartPos: QPoint | None = None
 
     def __post_init__(self, *args, **kwargs):
         super().__post_init__(*args, **kwargs)

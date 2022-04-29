@@ -1,5 +1,4 @@
 import logging
-from typing import List, Dict
 
 from PyQt5.QtCore import QSize, Qt, QEvent, QObject, pyqtProperty
 from PyQt5.QtGui import QCloseEvent, QMouseEvent
@@ -46,7 +45,7 @@ class MpvPlayerGroupWidget(QWidget,
         self._layout = QGridLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
-        self._players: Dict[int, MpvPlayerWidget] = {}
+        self._players: dict[int, MpvPlayerWidget] = {}
 
     def createSubWidgets(self, iterable):
         data = list(iterable)
@@ -69,7 +68,7 @@ class MpvPlayerGroupWidget(QWidget,
 
         logger.debug(f"Created player {id(pl)} [number={len(self._players)}]")
 
-    def playInWidget(self, widgetNumber: int, filenames: List[str]):
+    def playInWidget(self, widgetNumber: int, filenames: list[str]):
         widget = self._players[widgetNumber]
         widget.play(filenames)
 
@@ -87,10 +86,10 @@ class MpvPlayerGroupWidget(QWidget,
     def sizeHint(self) -> QSize:
         return QSize(600, 600)
 
-    def eventFilter(self, obj: 'QObject', event: 'QEvent') -> bool:
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         if isinstance(event, QMouseEvent):
             if event.button() == Qt.MidButton:
                 if any((player := pl) is obj for pl in self._players.values()):
                     player.setMute(change=True)
 
-        return super(MpvPlayerGroupWidget, self).eventFilter(obj, event)
+        return super().eventFilter(obj, event)

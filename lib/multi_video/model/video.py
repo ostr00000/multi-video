@@ -1,6 +1,5 @@
 import json
 import logging
-from typing import List, Dict
 
 from PyQt5.QtCore import QModelIndex, Qt, QRect
 
@@ -26,7 +25,7 @@ class VideoModel(DirtyModel):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self._data: List[BaseRow] = []
+        self._data: list[BaseRow] = []
 
     def flags(self, index: QModelIndex):
         return Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -125,7 +124,7 @@ class VideoModel(DirtyModel):
         e = self.index(r, len(self.headers))
         self.dataChanged.emit(s, e)
 
-    def setPositionAndSize(self, newValues: Dict[BaseRow, Position]):
+    def setPositionAndSize(self, newValues: dict[BaseRow, Position]):
         self.beginResetModel()
 
         for row in self._data:

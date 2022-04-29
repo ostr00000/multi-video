@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 from PyQt5.QtWidgets import QApplication
 
@@ -30,7 +29,7 @@ class PositionManager(BaseVideoWindow):
     @changeStatusDec(msg="Configuration redistributed.")
     def onRedistribute(self):
         """Automatically set size and position for vlc"""
-        data: List[BaseRow] = list(iter(self.model))
+        data: list[BaseRow] = list(iter(self.model))
 
         screen = QApplication.primaryScreen().availableGeometry()
         newPositions = calculatePosition(data, screen.width(), screen.height())
@@ -44,7 +43,7 @@ class PositionManager(BaseVideoWindow):
         return True
 
     @classmethod
-    def getRunningVlc(cls) -> List[str]:
+    def getRunningVlc(cls) -> list[str]:
         output = runCommand('ps -eo pid,command | grep vlc')
         result = []
         for line in output.split('\n'):

@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import List, Iterable
+from typing import Iterable
 
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
@@ -60,7 +60,7 @@ class DropManager(BaseVideoWindow):
         or dictionary contains files with these extensions"""
         self._prepareParameters(dropEvent)
         self._successDrop = False
-        valid: List[str] = []
+        valid: list[str] = []
         urls = dropEvent.mimeData().urls()
 
         for url in urls:
@@ -110,7 +110,7 @@ class DropManager(BaseVideoWindow):
 
         self.addFiles(validFiles)
 
-    def addFiles(self, validFiles: List[str]):
+    def addFiles(self, validFiles: list[str]):
         if not validFiles:
             return
 

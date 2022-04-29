@@ -1,13 +1,13 @@
 import os
 from pprint import pprint
-from typing import List
 
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+
 from multi_video.utils.split_window import calculatePosition, Position
 
 
-def draw(data: List[Position], dimX, dimY):
+def draw(data: list[Position], dimX, dimY):
     fig = plt.figure()
     ax = fig.add_subplot(111, aspect='equal')
 

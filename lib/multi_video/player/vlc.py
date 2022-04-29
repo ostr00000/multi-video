@@ -3,7 +3,6 @@ import os
 import shutil
 import uuid
 from subprocess import Popen, PIPE
-from typing import List
 
 from PyQt5.QtCore import QEventLoop, QTimer, QStandardPaths
 from boltons.cacheutils import cachedproperty
@@ -24,7 +23,7 @@ class VlcPlayer(BasePlayer):
     def __init__(self, baseWindow: BaseVideoWindow, *args):
         super().__init__(baseWindow, *args)
 
-        self._processes: List[Popen] = []
+        self._processes: list[Popen] = []
         self._isStarting = False
 
     def onStart(self):
@@ -122,7 +121,7 @@ class VlcPlayer(BasePlayer):
 
     def _sendCommand(self, command, process: Popen = None):
         processes = [process] if process else self._processes
-        valid: List[Popen] = []
+        valid: list[Popen] = []
         for p in processes:
             try:
                 logger.debug(f"Sending: {command} for {p.pid}")
@@ -139,7 +138,7 @@ class VlcPlayer(BasePlayer):
         return processes
 
     @staticmethod
-    def _killProcesses(processes: List[Popen]):
+    def _killProcesses(processes: list[Popen]):
         if any(p.poll() is None for p in processes):
             loop = QEventLoop()
             QTimer.singleShot(videoSettings.VLC_SLEEP_TIME_LLmsJJ, loop.quit)

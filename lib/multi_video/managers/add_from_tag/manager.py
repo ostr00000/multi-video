@@ -70,7 +70,7 @@ class AddFromTag(BaseVideoWindow):
     def closeEvent(self, closeEvent: QCloseEvent) -> None:
         objName = self.toolButtonAdd.defaultAction().objectName()
         videoSettings.TAG_DEFAULT_ACTION = objName
-        super(AddFromTag, self).closeEvent(closeEvent)
+        super().closeEvent(closeEvent)
 
     @changeStatusDec(msg="Row from tag files added.")
     def onAddSingleFromTagTriggered(self):
