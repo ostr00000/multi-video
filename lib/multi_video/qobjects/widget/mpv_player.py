@@ -26,6 +26,7 @@ class MpvMouseButton(Enum):
 
     @classmethod
     def getQtButton(cls, button: MpvMouseButton) -> Qt.MouseButton:
+        # noinspection PyUnresolvedReferences
         return cls._mapToQt[button]
 
 
@@ -173,7 +174,7 @@ class MpvPlayerWidget(QWidget):
             self.player.mute = isMute
 
     def stop(self):
-        self.player.quit()
+        self.player.quit(0)
         try:
             self.player.wait_for_shutdown()
         except mpv.ShutdownError:
