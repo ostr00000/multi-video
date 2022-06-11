@@ -41,25 +41,21 @@ class VideoModel(DirtyModel):
         return len(VideoModel.headers)
 
     def data(self, index: QModelIndex, role: int = ...):
-        if role not in (Qt.DisplayRole, Qt.ToolTipRole, Qt.UserRole):
-            return
-
         if not index.isValid():
             return
 
         row = self._data[index.row()]
-        if role == Qt.UserRole:
-            return row
-
-        if index.column() == VideoModel.COL_NAME:
-            return str(row)
-        elif index.column() == VideoModel.COL_POSITION:
-            return str(row.position)
-        elif index.column() == VideoModel.COL_SIZE:
-            if role == Qt.ToolTipRole:
-                return f"Total files: {len(row.getFiles())}"
-            else:
+        match role, index.column():
+            case Qt.UserRole, _:
+                return row
+            case Qt.DisplayRole | Qt.ToolTipRole, VideoModel.COL_NAME:
+                return str(row)
+            case Qt.DisplayRole | Qt.ToolTipRole, VideoModel.COL_POSITION:
+                return str(row.position)
+            case Qt.DisplayRole, VideoModel.COL_SIZE:
                 return str(row.size)
+            case Qt.ToolTipRole, VideoModel.COL_SIZE:
+                return f"Total files: {len(row.getFiles())}"
 
     @DirtyModel.dirtyDec
     def setData(self, index: QModelIndex, value, role: int = ...):
