@@ -46,7 +46,7 @@ class VideoModel(DirtyModel):
 
         row = self._data[index.row()]
         match role, index.column():
-            case Qt.UserRole, _:
+            case self.RowRole, _:
                 return row
             case Qt.DisplayRole | Qt.ToolTipRole, VideoModel.COL_NAME:
                 return str(row)

@@ -25,4 +25,4 @@ class ContextMenuManager(BaseVideoWindow):
         if not row:
             return None
 
-        return row.getContextMenu(parentMenu)
+        row.prepareContextMenu(parentMenu)

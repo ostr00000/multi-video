@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QAction, QMenu
 
 from multi_video.qobjects.settings import videoSettings
 from pyqt_utils.python.process_async import runProcessAsync
+from pyqt_utils.widgets.tag_filter.nodes import TagFilterNode
 from tag_space_tools.core.tag_finder import TagFinder
 
 
@@ -56,7 +57,7 @@ class BaseRow(DataClass):
     def __str__(self):
         raise NotImplementedError
 
-    def getContextMenu(self, parentMenu: QMenu) -> QAction | None:
+    def prepareContextMenu(self, parentMenu: QMenu):
         raise NotImplementedError
 
     def getFiles(self) -> list[str]:
@@ -73,7 +74,7 @@ class OpenFileFolderAction(QAction):
         self.triggered.connect(self.onTriggered)
 
     def onTriggered(self):
-        runProcessAsync(['xdg-open', self.filePath.parent.absolute().__fspath__()])
+        runProcessAsync(['xdg-open', self.filePath.parent.absolute().__fspath__()], shell=False)
 
 
 @dataclass
@@ -95,36 +96,38 @@ class Row(BaseRow):
     def __str__(self):
         return ','.join(map(os.path.basename, self.files))
 
-    def getContextMenu(self, parentMenu: QMenu) -> QAction | None:
+    def prepareContextMenu(self, parentMenu: QMenu):
         menu = parentMenu.addMenu("Open file folder")
 
         for filePathStr in self.files:
             filePath = Path(filePathStr)
             action = OpenFileFolderAction(filePath, text=filePath.name, parent=menu)
             menu.addAction(action)
-        return menu
 
 
 @dataclass
 class RowGen(BaseRow):
     path: str = ''
-    tag: str = ''
+    tag: TagFilterNode = ''
+
+    def __post_init__(self):
+        if isinstance(self.tag, bytes):
+            self.tag = TagFilterNode.deserialize(self.tag)
 
     def __hash__(self):
         return super().__hash__()
 
     def __str__(self):
-        return f'Tag[{self.tag}] generator in {self.path}'
+        return f'Tag[{repr(self.tag)}] generator in {self.path}'
 
     def toDict(self) -> dict[str, Any]:
-        return super().getDict() | {'path': self.path, 'tag': self.tag}
+        return super().getDict() | {'path': self.path, 'tag': self.tag.serialize()}
 
-    def getContextMenu(self, parentMenu: QMenu) -> QAction | None:
+    def prepareContextMenu(self, parentMenu: QMenu):
         action = OpenFileFolderAction(
             Path(self.path) / 'child', text="Open root tag folder",
             parent=parentMenu)
-        menu = parentMenu.addAction(action)
-        return menu
+        parentMenu.addAction(action)
 
     def getFiles(self) -> list[str]:
         tagFinder = TagFinder(self.path)

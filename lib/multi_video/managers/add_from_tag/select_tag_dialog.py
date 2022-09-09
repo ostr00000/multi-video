@@ -1,10 +1,9 @@
 import logging
 from pathlib import Path
-from typing import TypeVar, Iterable
 
 import more_itertools
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QDialog, QFileDialog
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog, QFileDialog, QListWidgetItem
 
 from multi_video.model.row import RowGen
 from multi_video.qobjects.settings import videoSettings
@@ -12,34 +11,45 @@ from multi_video.ui.select_tag_ui import Ui_SelectTagDialog
 from pyqt_utils.metaclass.slot_decorator import SlotDecoratorMeta
 from pyqt_utils.python.decorators import cursorDec
 from pyqt_utils.widgets.base_widget import BaseWidget
+from pyqt_utils.widgets.tag_filter.dialog import TagFilterDialog
+from pyqt_utils.widgets.tag_filter.nodes import TagFilterNode
 from tag_space_tools.core.tag_finder import TagFinder
 
-T = TypeVar('T')
-U = TypeVar('U')
 logger = logging.getLogger(__name__)
 
 
 class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDecoratorMeta):
+    tagWidget: TagFilterDialog
 
     def __post_init__(self, *args, **kwargs):
         super().__post_init__(*args, **kwargs)
+        self._prepareTagWidget()
+
         if tagCache := videoSettings.TAG_CACHE:
-            self.setTags(tagCache)
+            self.tagWidget.setPossibleValues(tagCache)
 
         if lastVal := videoSettings.TAG_DIR:
             self.tagDirLineEdit.setText(lastVal)
             if not tagCache:
                 self.onTagDirChanged(lastVal)
 
-        self.tagDirLineEdit.textChanged.connect(self.onTagDirChanged)
         self.changeTagDirButton.clicked.connect(self.onChangeTagDir)
-        self.buttonAdd.clicked.connect(self.onAddTag)
-        self.buttonRemove.clicked.connect(self.onRemoveTag)
+        self.tagDirLineEdit.textChanged.connect(self.onTagDirChanged)
         self.refreshButton.clicked.connect(self.onRefreshButtonClicked)
-        self.listWidget.currentTextChanged.connect(self.onCurrentTextChanged)
 
-    def refreshCounter(self):
-        self.selectedTagLabel.setText(str(self.listWidget.count()))
+        self.addButton.clicked.connect(self.onAddTag)
+        self.removeButton.clicked.connect(self.onRemoveTag)
+
+        self.listWidget.model().rowsInserted.connect(self.onRowsNumberChanged)
+        self.listWidget.model().rowsRemoved.connect(self.onRowsNumberChanged)
+
+    def _prepareTagWidget(self):
+        self.tagWidget = TagFilterDialog(parent=self)
+        self.tagWidget.setWindowFlag(Qt.Widget)
+        self.tagWidget.buttonBox.hide()
+        lay = self.tagWidgetPlaceholder.parent().layout()
+        lay.replaceWidget(self.tagWidgetPlaceholder, self.tagWidget)
+        self.tagWidgetPlaceholder.hide()
 
     def onChangeTagDir(self):
         baseTagDir = Path(self.tagDirLineEdit.text())
@@ -56,9 +66,6 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
             self.tagDirLineEdit.setText('')  # To send signal
             self.tagDirLineEdit.setText(tagDirectory)
 
-    def onRefreshButtonClicked(self):
-        self.onTagDirChanged(self.tagDirLineEdit.text())
-
     @cursorDec
     def onTagDirChanged(self, text):
         if not text:
@@ -71,36 +78,31 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
             return
 
         videoSettings.TAG_DIR = text
-        self.setTags(items)
-
-    def setTags(self, items: list[str]):
         videoSettings.TAG_CACHE = items
-        self.tagComboBox.clear()
-        self.tagComboBox.addItems(items)
-        self.tagComboBox.setEnabled(True)
-        self.buttonAdd.setEnabled(True)
+        self.tagWidget.setPossibleValues(items)
         self.listWidget.clear()
 
+    def onRefreshButtonClicked(self):
+        self.onTagDirChanged(self.tagDirLineEdit.text())
+
     def onAddTag(self):
-        if tagName := self.tagComboBox.currentText():
-            self.listWidget.addItem(tagName)
-            self.refreshCounter()
+        if tagNode := self.tagWidget.getValue():
+            tagNodeRepresentation = repr(tagNode)
+            item = QListWidgetItem(tagNodeRepresentation, parent=self.listWidget)
+            item.setData(Qt.UserRole, tagNode)
+            item.setToolTip(tagNodeRepresentation)
 
     def onRemoveTag(self):
         for item in self.listWidget.selectedItems():
             self.listWidget.takeItem(self.listWidget.row(item))
 
-        if self.listWidget.count() == 0:
-            self.buttonRemove.setEnabled(False)
-        self.refreshCounter()
+    def onRowsNumberChanged(self):
+        self.selectedTagLabel.setText(str(self.listWidget.count()))
+        self.removeButton.setEnabled(bool(self.listWidget.count()))
 
-    @pyqtSlot(str)
-    def onCurrentTextChanged(self, currentText: str):
-        self.buttonRemove.setEnabled(bool(currentText))
-
-    def getTagFiles(self) -> tuple[list[str], list[str]]:
+    def getTagFiles(self) -> list[str]:
         if not (tagPath := self.tagDirLineEdit.text()):
-            return [], []
+            return []
 
         allowedExt = videoSettings.allowedExtensionsWithDot
         tagFinder = TagFinder(tagPath)
@@ -108,17 +110,22 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
         tagsToGen = {}
 
         for i in range(self.listWidget.count()):
-            tagName = self.listWidget.item(i).text()
+            item = self.listWidget.item(i)
+            tagName = item.text()
+            tagFilterNode = item.data(Qt.UserRole)
             tagNames.append(tagName)
             if tagName not in tagsToGen:
-                tagsToGen[tagName] = tagFinder.genFilesWithTag(tagName, extensions=allowedExt)
+                tagsToGen[tagName] = tagFinder.genFilesWithTag(tagFilterNode, extensions=allowedExt)
 
         genSeq = [tagsToGen[tagName] for tagName in tagNames]
-        tagFiles = [str(path) for path in more_itertools.roundrobin(*genSeq)]
-        return tagFiles, tagNames
+        tagFiles = []
+        for path in more_itertools.roundrobin(*genSeq):
+            if (pathStr := str(path)) not in tagFiles:
+                tagFiles.append(pathStr)
+        return tagFiles
 
-    def genTagGenerators(self) -> Iterable[RowGen]:
+    def genTagGenerators(self):
         dirPath = self.tagDirLineEdit.text()
         for i in range(self.listWidget.count()):
-            tag = self.listWidget.item(i).text()
-            yield RowGen(path=dirPath, tag=tag)
+            tagFilterNode: TagFilterNode = self.listWidget.item(i).data(Qt.UserRole)
+            yield RowGen(path=dirPath, tag=tagFilterNode)

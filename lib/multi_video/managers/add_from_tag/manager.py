@@ -77,7 +77,7 @@ class AddFromTag(BaseVideoWindow):
         """Add one row to model from files generated from tags."""
         dlg = SelectTagDialog(self)
         if dlg.exec_():
-            tagFiles, tagNames = dlg.getTagFiles()
+            tagFiles = dlg.getTagFiles()
             if tagFiles:
                 self.model.appendRow(Row(files=tagFiles))
                 return True
@@ -89,7 +89,7 @@ class AddFromTag(BaseVideoWindow):
         if not dlg.exec_():
             return
 
-        tagFiles, tagNames = dlg.getTagFiles()
+        tagFiles = dlg.getTagFiles()
         if not tagFiles:
             return
 
