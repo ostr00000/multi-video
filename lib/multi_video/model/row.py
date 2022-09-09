@@ -112,7 +112,7 @@ class RowGen(BaseRow):
 
     def __post_init__(self):
         if isinstance(self.tag, bytes):
-            self.tag = TagFilterNode.deserialize(self.tag)
+            self.tag = TagFilterNode.deserialize(bytes(self.tag))
 
     def __hash__(self):
         return super().__hash__()
@@ -121,7 +121,9 @@ class RowGen(BaseRow):
         return f'Tag[{repr(self.tag)}] generator in {self.path}'
 
     def toDict(self) -> dict[str, Any]:
-        return super().getDict() | {'path': self.path, 'tag': self.tag.serialize()}
+        return super().getDict() | {
+            'path': self.path,
+            'tag': str(self.tag.serialize())}
 
     def prepareContextMenu(self, parentMenu: QMenu):
         action = OpenFileFolderAction(
