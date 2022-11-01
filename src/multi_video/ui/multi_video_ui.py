@@ -192,4 +192,3 @@ class Ui_MultiVideoMainWindow(object):
         self.actionNew.setText(_translate("MultiVideoMainWindow", "&New"))
         self.actionNew.setShortcut(_translate("MultiVideoMainWindow", "Ctrl+N"))
         self.actionShuffle.setText(_translate("MultiVideoMainWindow", "S&huffle"))
-from . import resource_rc

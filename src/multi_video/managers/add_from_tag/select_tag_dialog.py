@@ -2,7 +2,8 @@ import logging
 from pathlib import Path
 
 import more_itertools
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEvent, QObject
+from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QDialog, QFileDialog, QListWidgetItem
 
 from multi_video.model.row import RowGen
@@ -46,10 +47,19 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
     def _prepareTagWidget(self):
         self.tagWidget = TagFilterDialog(parent=self)
         self.tagWidget.setWindowFlag(Qt.Widget)
+        self.tagWidget.installEventFilter(self)
+
         self.tagWidget.buttonBox.hide()
+
         lay = self.tagWidgetPlaceholder.parent().layout()
         lay.replaceWidget(self.tagWidgetPlaceholder, self.tagWidget)
         self.tagWidgetPlaceholder.hide()
+
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
+        if obj is self.tagWidget:
+            if isinstance(event, QKeyEvent) and event.key() == Qt.Key_Escape:
+                return True
+        return False
 
     def onChangeTagDir(self):
         baseTagDir = Path(self.tagDirLineEdit.text())
