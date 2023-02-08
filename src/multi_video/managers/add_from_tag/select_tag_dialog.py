@@ -122,12 +122,12 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
         for i in range(self.listWidget.count()):
             item = self.listWidget.item(i)
             tagName = item.text()
-            tagFilterNode = item.data(Qt.UserRole)
+            tagFilterNode = item.data(Qt.UserRole) or tagName
             tagNames.append(tagName)
             if tagName not in tagsToGen:
                 tagsToGen[tagName] = tagFinder.genFilesWithTag(tagFilterNode, extensions=allowedExt)
 
-        genSeq = [tagsToGen[tagName] for tagName in tagNames]
+        genSeq = [tagsToGen[tn] for tn in tagNames]
         tagFiles = []
         for path in more_itertools.roundrobin(*genSeq):
             if (pathStr := str(path)) not in tagFiles:

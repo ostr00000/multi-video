@@ -65,7 +65,7 @@ class MpvPlayerWidget(QWidget):
             wid=str(int(self.winId())),
             log_handler=self.logHandler,
             loglevel=self.LogLevel.INFO,
-            **{'loop-playlist': 'inf'}
+            **{'loop-playlist': 'inf', 'vo': 'x11'}
         )
         self._enableMouseEvent(MpvMouseButton.MID)
         self.setMute()
@@ -95,7 +95,7 @@ class MpvPlayerWidget(QWidget):
         if isinstance(level, str):
             level = logging.DEBUG
 
-        logger.log(level, f'{id(self)}[{component}]: {message}')
+        logger.log(level, f'{id(self)}[{component}]: {message.strip()}')
 
     @ignoreShutdown
     def onFileChanged(self, propertyName, propertyValue, timeDelay=0.3):
