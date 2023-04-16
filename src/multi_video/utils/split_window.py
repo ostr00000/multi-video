@@ -2,6 +2,8 @@ import math
 from dataclasses import dataclass
 from typing import Iterable, Collection, Sized, TypeVar, Generator
 
+from multi_video.qobjects.settings import videoSettings
+
 _X = TypeVar('_X')
 
 
@@ -97,14 +99,22 @@ def getMinimumRectangle(elements: Sized):
     assert False
 
 
-def calculatePosition(elements: Collection[_X], width: int, height: int) -> dict[_X, Position]:
-    """Return map with elements mapped to Position"""
-    cx, cy = getMinimumRectangle(elements)
+def getRectangle(elements: Sized):
+    if (w := videoSettings.RECTANGLE_WIDTH) and (h := videoSettings.RECTANGLE_HEIGHT):
+        return w, h
+    return getMinimumRectangle(elements)
 
+
+def calculatePosition(elements: Collection[_X],
+                      width: int | None = None,
+                      height: int | None = None) -> dict[_X, Position]:
+    """Return map with elements mapped to Position"""
+    cx, cy = getRectangle(elements)
     total = cx * cy
     additional = total - len(elements)
-    xu = width / cx
-    yu = height / cy
+
+    xu = width / cx if width else 1
+    yu = height / cy if height else 1
 
     result = {}
     eGen = elementGen(elements, additional)

@@ -47,5 +47,8 @@ class _Settings(QSettings):
 
     TAG_DEFAULT_ACTION = StrField('AddFromTag/defaultAction')
 
+    RECTANGLE_WIDTH = IntField('video/rectangle_width')
+    RECTANGLE_HEIGHT = IntField('video/rectangle_height')
+
 
 videoSettings = _Settings(orgName, appName)

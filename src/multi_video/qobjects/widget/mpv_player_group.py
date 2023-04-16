@@ -52,8 +52,7 @@ class MpvPlayerGroupWidget(QWidget,
         if not data:
             return
 
-        rX, rY = getMinimumRectangle(data)
-        positions = calculatePosition(data, rX, rY)
+        positions = calculatePosition(data)
         for d in data:
             position = positions[d]
             position.nonNegativeSize()
