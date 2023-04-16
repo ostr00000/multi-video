@@ -8,7 +8,7 @@ from random import randint
 from threading import Timer
 
 import mpv
-from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtCore import Qt, QPointF, QEvent
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QWidget, QApplication
 from decorator import decorator
@@ -27,13 +27,25 @@ class MpvMouseButton(Enum):
     @classmethod
     def getQtButton(cls, button: MpvMouseButton) -> Qt.MouseButton:
         # noinspection PyUnresolvedReferences
-        return cls._mapToQt[button]
+        return cls._mapToQtButton[button]
+
+    @classmethod
+    def getEventType(cls, button: MpvMouseButton) -> QEvent.Type:
+        # noinspection PyUnresolvedReferences
+        return cls._mapToEventType[button]
 
 
-MpvMouseButton._mapToQt = {
+MpvMouseButton._mapToQtButton = {
     MpvMouseButton.LEFT: Qt.LeftButton,
     MpvMouseButton.RIGHT: Qt.RightButton,
     MpvMouseButton.MID: Qt.MidButton,
+    MpvMouseButton.DOUBLE: Qt.LeftButton,
+}
+MpvMouseButton._mapToEventType = {
+    MpvMouseButton.LEFT: QMouseEvent.MouseButtonPress,
+    MpvMouseButton.RIGHT: QMouseEvent.MouseButtonPress,
+    MpvMouseButton.MID: QMouseEvent.MouseButtonPress,
+    MpvMouseButton.DOUBLE: QMouseEvent.MouseButtonDblClick,
 }
 
 
@@ -68,6 +80,7 @@ class MpvPlayerWidget(QWidget):
             **{'loop-playlist': 'inf', 'vo': 'x11'}
         )
         self._enableMouseEvent(MpvMouseButton.MID)
+        self._enableMouseEvent(MpvMouseButton.DOUBLE)
         self.setMute()
         self.player.observe_property('filename', self.onFileChanged)
 
@@ -76,10 +89,9 @@ class MpvPlayerWidget(QWidget):
         self.player.on_key_press(mouseButton.value)(callback)
 
     def _mousePress(self, mouseButton: MpvMouseButton):
+        eventType = MpvMouseButton.getEventType(mouseButton)
         qtButton = MpvMouseButton.getQtButton(mouseButton)
-        event = QMouseEvent(
-            QMouseEvent.MouseButtonPress, QPointF(),
-            qtButton, qtButton, Qt.NoModifier)
+        event = QMouseEvent(eventType, QPointF(), qtButton, qtButton, Qt.NoModifier)
         QApplication.sendEvent(self, event)
 
     @staticmethod

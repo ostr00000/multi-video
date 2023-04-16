@@ -1,12 +1,12 @@
 import logging
 
 from PyQt5.QtCore import QSize, Qt, QEvent, QObject, pyqtProperty
-from PyQt5.QtGui import QCloseEvent, QMouseEvent
+from PyQt5.QtGui import QCloseEvent, QMouseEvent, QKeyEvent
 from PyQt5.QtWidgets import QWidget, QGridLayout, QFrame, QHBoxLayout
 
 from multi_video.qobjects.settings import videoSettings
 from multi_video.qobjects.widget.mpv_player import MpvPlayerWidget, ignoreShutdown
-from multi_video.utils.split_window import calculatePosition, getMinimumRectangle
+from multi_video.utils.split_window import calculatePosition
 from pyqt_utils.metaclass.geometry_saver import GeometrySaverMeta
 
 logger = logging.getLogger(__name__)
@@ -46,6 +46,21 @@ class MpvPlayerGroupWidget(QWidget,
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
         self._players: dict[int, MpvPlayerWidget] = {}
+
+    def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
+
+    def keyPressEvent(self, event: QKeyEvent):
+        match event.key(), self.isFullScreen():
+            case Qt.Key_F11 | Qt.Key_Escape, True:
+                self.showNormal()
+            case Qt.Key_F11, False:
+                self.showFullScreen()
+            case _:
+                super().keyPressEvent(event)
 
     def createSubWidgets(self, iterable):
         data = list(iterable)
