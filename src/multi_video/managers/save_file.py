@@ -28,7 +28,6 @@ class SaveFileManager(BaseVideoWindow):
     def onSaveAs(self):
         """Save model to new file"""
         fd = DropFileDialog(self, "Save Configuration")
-        fd.setFileMode(DropFileDialog.ExistingFile)
         fd.setNameFilter("Configuration ( *.json )")
         if fd.exec():
             filePath = fd.selectedFiles()[0]
