@@ -14,7 +14,6 @@ dependencies = [
     'boltons',
     'decorator',
     'more-itertools',
-    'more_itertools',
     'progressbar2',
     'pyqt-settings @ git+https://github.com/ostr00000/pyqt-settings@master#egg=pyqt-settings',
     'python-mpv',
