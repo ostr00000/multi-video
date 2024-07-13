@@ -1,7 +1,8 @@
 import json
 import logging
+from typing import ClassVar
 
-from PyQt5.QtCore import QModelIndex, Qt, QRect
+from PyQt5.QtCore import QModelIndex, QRect, Qt
 
 from multi_video.model.dirty import DirtyModel
 from multi_video.model.row import BaseRow
@@ -14,11 +15,15 @@ class VideoModel(DirtyModel):
     COL_NAME = 0
     COL_POSITION = 1
     COL_SIZE = 2
+    COL_PID = 3
+    COL_WID = 4
 
-    headers = {
+    headers: ClassVar[dict[int, str]] = {
         COL_NAME: 'Files',
         COL_POSITION: 'Position (x, y)',
         COL_SIZE: 'Size (x, y)',
+        COL_PID: 'Process id',
+        COL_WID: 'Window ids',
     }
 
     RowRole = Qt.UserRole
@@ -33,6 +38,7 @@ class VideoModel(DirtyModel):
     def headerData(self, section: int, orientation: Qt.Orientation, role=None):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return VideoModel.headers[section]
+        return None
 
     def rowCount(self, parent=None):
         return len(self._data)
@@ -40,9 +46,9 @@ class VideoModel(DirtyModel):
     def columnCount(self, parent=None):
         return len(VideoModel.headers)
 
-    def data(self, index: QModelIndex, role: int = ...):
+    def data(self, index: QModelIndex, role: int = Qt.DisplayRole):
         if not index.isValid():
-            return
+            return None
 
         row = self._data[index.row()]
         match role, index.column():
@@ -58,7 +64,7 @@ class VideoModel(DirtyModel):
                 return f"Total files: {len(row.getFiles())}"
 
     @DirtyModel.dirtyDec
-    def setData(self, index: QModelIndex, value, role: int = ...):
+    def setData(self, index: QModelIndex, value, role: int = Qt.DisplayRole):
         if role != Qt.UserRole:
             return False
 
@@ -66,10 +72,19 @@ class VideoModel(DirtyModel):
         return True
 
     @DirtyModel.dirtyDec
-    def moveRow(self, sourceParent: QModelIndex, sourceRow: int, destinationParent: QModelIndex,
-                destinationChild: int):
-        destinationRow = destinationChild + 1 if destinationChild > sourceRow else destinationChild
-        self.beginMoveRows(sourceParent, sourceRow, sourceRow, destinationParent, destinationRow)
+    def moveRow(
+        self,
+        sourceParent: QModelIndex,
+        sourceRow: int,
+        destinationParent: QModelIndex,
+        destinationChild: int,
+    ):
+        destinationRow = (
+            destinationChild + 1 if destinationChild > sourceRow else destinationChild
+        )
+        self.beginMoveRows(
+            sourceParent, sourceRow, sourceRow, destinationParent, destinationRow
+        )
         row = self._data.pop(sourceRow)
         self._data.insert(destinationChild, row)
         self.endMoveRows()
@@ -85,7 +100,7 @@ class VideoModel(DirtyModel):
     @DirtyModel.dirtyDec
     def removeRows(self, row: int, count: int, parent=QModelIndex()):
         self.beginRemoveRows(parent, row, row + count - 1)
-        del self._data[row:row + count]
+        del self._data[row : row + count]
         self.endRemoveRows()
         return True
 
@@ -93,19 +108,19 @@ class VideoModel(DirtyModel):
         self.removeRows(0, len(self._data))
 
     @DirtyModel.cleanDec
-    def toJson(self):
+    def toJson(self) -> str:
         return json.dumps([d.toDict() for d in self._data], ensure_ascii=True)
 
     @DirtyModel.cleanDec
-    def loadJson(self, jsonObj):
+    def loadJson(self, jsonObj: str):
         self.beginResetModel()
 
         obj = []
         for d in json.loads(jsonObj):
             try:
                 obj.append(BaseRow.fromDict(d))
-            except TypeError as te:
-                logger.error(te)
+            except TypeError:
+                logger.exception(f"Cannot convert {d} to {BaseRow}")
 
         self._data = obj
         self.endResetModel()

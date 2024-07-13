@@ -1,8 +1,12 @@
-from PyQt5.QtCore import Qt, QPoint
+from typing import TYPE_CHECKING
+
+from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtWidgets import QMenu
 
-from multi_video.model.row import BaseRow
 from multi_video.window.base import BaseVideoWindow
+
+if TYPE_CHECKING:
+    from multi_video.model.row import BaseRow
 
 
 class ContextMenuManager(BaseVideoWindow):
@@ -23,6 +27,6 @@ class ContextMenuManager(BaseVideoWindow):
         index = self.tableView.indexAt(pos)
         row: BaseRow = index.data(self.model.RowRole)
         if not row:
-            return None
+            return
 
         row.prepareContextMenu(parentMenu)

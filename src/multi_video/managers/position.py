@@ -1,13 +1,13 @@
 import re
 
 from PyQt5.QtWidgets import QApplication
+from pyqt_utils.widgets.time_status_bar_dec import changeStatusDec
 
-from multi_video.model.row import Row, BaseRow
+from multi_video.model.row import BaseRow, Row
 from multi_video.qobjects.settings import videoSettings
 from multi_video.utils.commands import runCommand
 from multi_video.utils.split_window import calculatePosition
 from multi_video.window.base import BaseVideoWindow
-from pyqt_utils.widgets.time_status_bar import changeStatusDec
 
 
 class PositionManager(BaseVideoWindow):
@@ -20,7 +20,7 @@ class PositionManager(BaseVideoWindow):
 
     @changeStatusDec(msg="Found vlc instances.", failureMsg="Not found any vlc.")
     def onFindOpened(self):
-        """Find processes vlc - look at '--started-from-file' option"""
+        """Find processes vlc - look at '--started-from-file' option."""
         vlcFiles = self.getRunningVlc()
         for file in vlcFiles:
             self.model.appendRow(Row(files=[file]))
@@ -28,7 +28,7 @@ class PositionManager(BaseVideoWindow):
 
     @changeStatusDec(msg="Configuration redistributed.")
     def onRedistribute(self):
-        """Automatically set size and position for vlc"""
+        """Automatically set size and position for vlc."""
         data: list[BaseRow] = list(iter(self.model))
 
         screen = QApplication.primaryScreen().availableGeometry()
@@ -45,16 +45,15 @@ class PositionManager(BaseVideoWindow):
     @classmethod
     def getRunningVlc(cls) -> list[str]:
         output = runCommand('ps -eo pid,command | grep vlc')
-        result = []
+        result: list[str] = []
         for line in output.split('\n'):
             pid, command = line.split(maxsplit=1)
-            match = cls.VLC_FILE_ARG_PATTERN.match(command)
-            if match:
-                filesStr = match.group(1).lstrip()
+            if not (match := cls.VLC_FILE_ARG_PATTERN.match(command)):
+                continue
 
-                pattern = rf'\'?(.+?\.{"|".join(videoSettings.ALLOWED_EXTENSIONS)})\'?'
-                files = re.findall(pattern, filesStr)
-                for f in files:
-                    result.append(f)
+            filesStr = match.group(1).lstrip()
+            pattern = rf'\'?(.+?\.{"|".join(videoSettings.ALLOWED_EXTENSIONS)})\'?'
+            files = re.findall(pattern, filesStr)
+            result.extend(files)
 
         return result

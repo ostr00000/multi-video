@@ -1,12 +1,22 @@
 import logging
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 
 logger = logging.getLogger(__name__)
 
 
-def runCommand(command) -> str:
+def runCommand(command: str) -> str:
     logger.debug(f"Executing: '{command}'")
-    process = Popen(command, stdout=PIPE, shell=True, stderr=PIPE)
+
+    process = Popen(
+        [  # noqa: S603 # SKIP no option to validate this
+            '/usr/bin/bash',
+            '-c',
+            command,
+        ],
+        text=True,
+        stdout=PIPE,
+        stderr=PIPE,
+    )
+
     stdout = process.communicate()[0]
-    result = stdout.decode('utf-8').rstrip()
-    return result
+    return stdout.rstrip()

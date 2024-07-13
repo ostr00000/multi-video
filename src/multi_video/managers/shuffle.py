@@ -1,8 +1,9 @@
 import random
 
+from pyqt_utils.widgets.time_status_bar_dec import changeStatusDec
+
 from multi_video.qobjects.settings import videoSettings
 from multi_video.window.base import BaseVideoWindow
-from pyqt_utils.widgets.time_status_bar import changeStatusDec
 
 
 class ShuffleManager(BaseVideoWindow):

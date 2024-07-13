@@ -1,10 +1,10 @@
 from PyQt5 import QtGui
+from pyqt_utils.widgets.time_status_bar_dec import changeStatusDec
 
 from multi_video.player.mpv import MpvPlayer
 from multi_video.player.vlc import VlcPlayer
 from multi_video.qobjects.settings import videoSettings
 from multi_video.window.base import BaseVideoWindow
-from pyqt_utils.widgets.time_status_bar import changeStatusDec
 
 
 class VideoManager(BaseVideoWindow):
@@ -18,8 +18,7 @@ class VideoManager(BaseVideoWindow):
         self.actionClose.triggered.connect(self.onStop)
 
     def _getPlayer(self):
-        player = getattr(self, videoSettings.VIDEO_PLAYER)
-        return player
+        return getattr(self, videoSettings.VIDEO_PLAYER)
 
     @changeStatusDec(msg="Video started.")
     def onStart(self):

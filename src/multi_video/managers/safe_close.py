@@ -1,12 +1,12 @@
+from decorator import decorator
 from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtWidgets import QMessageBox
-from decorator import decorator
 
+from multi_video.managers.save_file import SaveFileManager
 from multi_video.qobjects.settings import videoSettings
-from multi_video.window.base import BaseVideoWindow
 
 
-class SafeCloseManager(BaseVideoWindow):
+class SafeCloseManager(SaveFileManager):
 
     @staticmethod
     @decorator
@@ -17,7 +17,7 @@ class SafeCloseManager(BaseVideoWindow):
         return cancelReturnVal
 
     def _takeActionIfUnsavedChanges(self):
-        """If cancel return False"""
+        """If cancel return False."""
         if not self.model.isDirty:
             return True
 
@@ -25,17 +25,16 @@ class SafeCloseManager(BaseVideoWindow):
             return True
 
         resultButton = QMessageBox.question(
-            self, "Unsaved changes",
+            self,
+            "Unsaved changes",
             "Data has been changed. Do you want to save it?",
-            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+        )
 
         if resultButton == QMessageBox.Save:
             self.onSave()
             return True
-        elif resultButton == QMessageBox.Discard:
-            return True
-        else:
-            return False
+        return resultButton == QMessageBox.Discard
 
     def closeEvent(self, event: QCloseEvent) -> None:
         if self._takeActionIfUnsavedChanges():

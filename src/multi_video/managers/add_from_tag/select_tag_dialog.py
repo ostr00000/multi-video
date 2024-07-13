@@ -1,25 +1,30 @@
 import logging
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import more_itertools
-from PyQt5.QtCore import Qt, QEvent, QObject
+from PyQt5.QtCore import QEvent, QObject, Qt
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QDialog, QFileDialog, QListWidgetItem
+from pyqt_utils.metaclass.slot_decorator import SlotDecoratorMeta
+from pyqt_utils.python.decorators import cursorDecFactory
+from pyqt_utils.widgets.base_ui_widget import BaseUiWidget
+from pyqt_utils.widgets.tag_filter.dialog import TagFilterDialog
+from tag_space_tools.core.tag_finder import TagFinder
 
 from multi_video.model.row import RowGen
 from multi_video.qobjects.settings import videoSettings
 from multi_video.ui.select_tag_ui import Ui_SelectTagDialog
-from pyqt_utils.metaclass.slot_decorator import SlotDecoratorMeta
-from pyqt_utils.python.decorators import cursorDec
-from pyqt_utils.widgets.base_widget import BaseWidget
-from pyqt_utils.widgets.tag_filter.dialog import TagFilterDialog
-from pyqt_utils.widgets.tag_filter.nodes import TagFilterNode
-from tag_space_tools.core.tag_finder import TagFinder
+
+if TYPE_CHECKING:
+    from pyqt_utils.widgets.tag_filter.nodes import TagFilterNode
 
 logger = logging.getLogger(__name__)
 
 
-class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDecoratorMeta):
+class SelectTagDialog(
+    Ui_SelectTagDialog, QDialog, BaseUiWidget, metaclass=SlotDecoratorMeta
+):
     tagWidget: TagFilterDialog
 
     def __post_init__(self, *args, **kwargs):
@@ -51,14 +56,17 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
 
         self.tagWidget.buttonBox.hide()
 
-        lay = self.tagWidgetPlaceholder.parent().layout()
+        lay = self.tagWidgetPlaceholder.parentWidget().layout()
         lay.replaceWidget(self.tagWidgetPlaceholder, self.tagWidget)
         self.tagWidgetPlaceholder.hide()
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
-        if obj is self.tagWidget:
-            if isinstance(event, QKeyEvent) and event.key() == Qt.Key_Escape:
-                return True
+        if (
+            obj is self.tagWidget
+            and isinstance(event, QKeyEvent)
+            and event.key() == Qt.Key_Escape
+        ):
+            return True
         return False
 
     def onChangeTagDir(self):
@@ -69,22 +77,23 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
                 while not baseTagDir.exists():
                     baseTagDir = baseTagDir.parent
             else:
-                baseTagDir = Path('')
+                baseTagDir = Path()
 
         if tagDirectory := QFileDialog.getExistingDirectory(
-                self, caption='Select tag root', directory=str(baseTagDir)):
+            self, caption='Select tag root', directory=str(baseTagDir)
+        ):
             self.tagDirLineEdit.setText('')  # To send signal
             self.tagDirLineEdit.setText(tagDirectory)
 
-    @cursorDec
+    @cursorDecFactory()
     def onTagDirChanged(self, text):
         if not text:
             return
 
         try:
             items = TagFinder(text).findAllTags()
-        except OSError as e:
-            logger.error(e)
+        except OSError:
+            logger.exception("Cannot find tags")
             return
 
         videoSettings.TAG_DIR = text
@@ -120,12 +129,16 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
         tagsToGen = {}
 
         for i in range(self.listWidget.count()):
-            item = self.listWidget.item(i)
+            if (item := self.listWidget.item(i)) is None:
+                continue
+
             tagName = item.text()
             tagFilterNode = item.data(Qt.UserRole) or tagName
             tagNames.append(tagName)
             if tagName not in tagsToGen:
-                tagsToGen[tagName] = tagFinder.genFilesWithTag(tagFilterNode, extensions=allowedExt)
+                tagsToGen[tagName] = tagFinder.genFilesWithTag(
+                    tagFilterNode, extensions=allowedExt
+                )
 
         genSeq = [tagsToGen[tn] for tn in tagNames]
         tagFiles = []
@@ -137,5 +150,8 @@ class SelectTagDialog(Ui_SelectTagDialog, BaseWidget, QDialog, metaclass=SlotDec
     def genTagGenerators(self):
         dirPath = self.tagDirLineEdit.text()
         for i in range(self.listWidget.count()):
-            tagFilterNode: TagFilterNode = self.listWidget.item(i).data(Qt.UserRole)
+            if (item := self.listWidget.item(i)) is None:
+                continue
+
+            tagFilterNode: TagFilterNode = item.data(Qt.UserRole)
             yield RowGen(path=dirPath, tag=tagFilterNode)

@@ -1,23 +1,26 @@
 import os
 import random
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import KW_ONLY, dataclass, field
 from pathlib import Path
 from typing import Any
 
 from PyQt5.QtWidgets import QAction, QMenu
-
-from multi_video.qobjects.settings import videoSettings
 from pyqt_utils.python.process_async import runProcessAsync
 from pyqt_utils.widgets.tag_filter.nodes import TagFilterNode
 from tag_space_tools.core.tag_finder import TagFinder
+
+from multi_video.qobjects.settings import videoSettings
 
 
 class Enum:
     @classmethod
     def getDict(cls):
-        return {k: v for k, v in cls.__dict__.items()
-                if k.islower() and not k.startswith('_')}
+        return {
+            k: v
+            for k, v in cls.__dict__.items()
+            if k.islower() and not k.startswith('_')
+        }
 
 
 @dataclass
@@ -42,10 +45,11 @@ class BaseRow(DataClass):
     def fromDict(cls, values: dict):
         for sc in cls.__subclasses__():
             try:
-                return sc(**values)  # noqa
+                return sc(**values)
             except TypeError:
                 pass
-        raise TypeError(f'Unexpected row type for values: {values}')
+        msg = f"Unexpected row type for values: {values}"
+        raise TypeError(msg)
 
     def toDict(self) -> dict[str, Any]:
         return {
@@ -74,7 +78,9 @@ class OpenFileFolderAction(QAction):
         self.triggered.connect(self.onTriggered)
 
     def onTriggered(self):
-        runProcessAsync(['xdg-open', self.filePath.parent.absolute().__fspath__()], shell=False)
+        runProcessAsync(
+            ['xdg-open', self.filePath.parent.absolute().__fspath__()], shell=False
+        )
 
 
 @dataclass
@@ -108,7 +114,8 @@ class Row(BaseRow):
 @dataclass
 class RowGen(BaseRow):
     path: str = ''
-    tag: TagFilterNode = ''
+    _: KW_ONLY
+    tag: TagFilterNode
 
     def __post_init__(self):
         if isinstance(self.tag, bytes):
@@ -118,22 +125,22 @@ class RowGen(BaseRow):
         return super().__hash__()
 
     def __str__(self):
-        return f'Tag[{repr(self.tag)}] generator in {self.path}'
+        return f'Tag[{self.tag!r}] generator in {self.path}'
 
     def toDict(self) -> dict[str, Any]:
-        return super().getDict() | {
-            'path': self.path,
-            'tag': str(self.tag.serialize())}
+        return super().getDict() | {'path': self.path, 'tag': str(self.tag.serialize())}
 
     def prepareContextMenu(self, parentMenu: QMenu):
         action = OpenFileFolderAction(
-            Path(self.path) / 'child', text="Open root tag folder",
-            parent=parentMenu)
+            Path(self.path) / 'child', text="Open root tag folder", parent=parentMenu
+        )
         parentMenu.addAction(action)
 
     def getFiles(self) -> list[str]:
         tagFinder = TagFinder(self.path)
-        filePaths = tagFinder.genFilesWithTag(self.tag, videoSettings.allowedExtensionsWithDot)
+        filePaths = tagFinder.genFilesWithTag(
+            self.tag, videoSettings.allowedExtensionsWithDot
+        )
         fileStrings = [str(t) for t in filePaths]
         random.shuffle(fileStrings)
         return fileStrings

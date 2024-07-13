@@ -1,18 +1,22 @@
 import logging
-import os
+import shlex
 import shutil
 import uuid
-from subprocess import Popen, PIPE
+from functools import cached_property
+from pathlib import Path
+from subprocess import PIPE, Popen
 
-from PyQt5.QtCore import QEventLoop, QTimer, QStandardPaths
-from boltons.cacheutils import cachedproperty
+from PyQt5.QtCore import QEventLoop, QStandardPaths, QTimer
 
 from multi_video import appName
 from multi_video.model.row import BaseRow
 from multi_video.player.base import BasePlayer
 from multi_video.qobjects.settings import videoSettings
 from multi_video.utils.commands import runCommand
-from multi_video.utils.iterator_wrappers import dataChangeIterator, processEventsIterator
+from multi_video.utils.iterator_wrappers import (
+    dataChangeIterator,
+    processEventsIterator,
+)
 from multi_video.utils.window_collector import WindowCollector
 from multi_video.window.base import BaseVideoWindow
 
@@ -23,17 +27,17 @@ class VlcPlayer(BasePlayer):
     def __init__(self, baseWindow: BaseVideoWindow, *args):
         super().__init__(baseWindow, *args)
 
-        self._processes: list[Popen] = []
+        self._processes: list[Popen[bytes]] = []
         self._isStarting = False
 
     def onStart(self):
         if self._isStarting:
-            return
+            return None
 
         if self._processes:
             self.onPause(isPause=False)
             self.baseWindow.lower()
-            return
+            return None
 
         self._isStarting = True
         self._runAll()
@@ -45,9 +49,11 @@ class VlcPlayer(BasePlayer):
         loop = QEventLoop()
 
         for row in dataChangeIterator(
-                processEventsIterator(self.model),
-                self.model, self.model.COL_PID, self.model.COL_WID):  # type: BaseRow
-
+            processEventsIterator(iter(self.model)),
+            self.model,
+            self.model.COL_PID,
+            self.model.COL_WID,
+        ):
             if not self._isStarting:
                 return
 
@@ -64,44 +70,70 @@ class VlcPlayer(BasePlayer):
             row.wid = windowCollector.getNewWindowId()
 
             self.resizeAndMove(row)
-            self.onPause(True, process)
+            self.onPause(isPause=True, process=process)
 
         self.baseWindow.raise_()
 
     @staticmethod
     def resizeAndMove(row: BaseRow):
-        commands = []
+        commands: list[str] = []
         for wid in row.wid[:6]:  # unknown order of layer - may shadow qt interface
-            commands.append(f'xdotool windowsize {wid} {row.size[0]} {row.size[1]}')
-            commands.append(f'xdotool windowmove {wid} {row.position[0]} {row.position[1]}')
+            cmd = [
+                'xdotool',
+                'windowsize',
+                str(wid),
+                str(row.size[0]),
+                str(row.size[1]),
+            ]
+            commands.append(shlex.join(cmd))
 
-        commandsStr = ' && '.join(commands)
-        runCommand(commandsStr)
+            cmd = [
+                'xdotool',
+                'windowmove',
+                str(wid),
+                str(row.position[0]),
+                str(row.position[1]),
+            ]
+            commands.append(shlex.join(cmd))
 
-    def _runProcess(self, row: BaseRow) -> Popen:
-        files = ' '.join(f"'{f}'" for f in row.getFiles())
-        cmd = f'vlc --verbose 3 --intf qt --extraintf rc ' \
-              f'--qt-minimal-view --started-from-file {files}'
+        runCommand(' && '.join(commands))
+
+    def _runProcess(self, row: BaseRow) -> Popen[bytes]:
+        cmd = [
+            'vlc',
+            '--verbose',
+            '3',
+            '--intf',
+            'qt',
+            '--extraintf',
+            'rc',
+            '--qt-minimal-view',
+            '--started-from-file',
+            *row.getFiles(),
+        ]
         logger.debug(cmd)
 
         logFile = self.getLogFile(row)
-        return Popen(cmd, shell=True, stderr=logFile, stdout=logFile, stdin=PIPE)
+        return Popen(
+            cmd,  # noqa: S603 # SKIP no option to validate this
+            stderr=logFile,
+            stdout=logFile,
+            stdin=PIPE,
+        )
 
     def getLogFile(self, row: BaseRow):
-        filePath = os.path.join(self.logDir, f'{row.position}_{uuid.uuid4()}')
-        logFile = open(filePath, 'w')
-        return logFile
+        return (self.logDirPath / f'{row.position}_{uuid.uuid4()}').open('w')
 
-    @cachedproperty
-    def logDir(self):
-        dirPath = os.path.join(
-            QStandardPaths.standardLocations(QStandardPaths.TempLocation)[0],
-            appName)
+    @cached_property
+    def logDirPath(self) -> Path:
+        sps = QStandardPaths.standardLocations(QStandardPaths.TempLocation)
+        logPath = Path(sps[0])
+        dirPath = logPath / appName
         shutil.rmtree(dirPath, ignore_errors=True)
-        os.makedirs(dirPath, exist_ok=True)
+        dirPath.mkdir(parents=True, exist_ok=True)
         return dirPath
 
-    def onPause(self, isPause, process=None):
+    def onPause(self, *, isPause: bool, process: Popen[bytes] | None = None):
         action = b"pause\n" if isPause else b"play\n"
         self._sendCommand(action, process)
 
@@ -109,6 +141,7 @@ class VlcPlayer(BasePlayer):
             self.baseWindow.actionPause.setChecked(isPause)
             self._isStarting = False
             return isPause
+        return None
 
     def onStop(self):
         self._isStarting = False
@@ -116,13 +149,15 @@ class VlcPlayer(BasePlayer):
 
         oldProcesses = self._sendCommand(b'quit\n')
         self._killProcesses(oldProcesses)
-        self._processes = []
+        self._processes: list[Popen[bytes]] = []
         return True
 
-    def _sendCommand(self, command, process: Popen = None):
+    def _sendCommand(self, command: bytes, process: Popen[bytes] | None = None):
         processes = [process] if process else self._processes
-        valid: list[Popen] = []
+        valid: list[Popen[bytes]] = []
         for p in processes:
+            if p.stdin is None:
+                continue
             try:
                 logger.debug(f"Sending: {command} for {p.pid}")
                 p.stdin.write(command)
@@ -138,7 +173,7 @@ class VlcPlayer(BasePlayer):
         return processes
 
     @staticmethod
-    def _killProcesses(processes: list[Popen]):
+    def _killProcesses(processes: list[Popen[bytes]]):
         if any(p.poll() is None for p in processes):
             loop = QEventLoop()
             QTimer.singleShot(videoSettings.VLC_SLEEP_TIME_LLmsJJ, loop.quit)

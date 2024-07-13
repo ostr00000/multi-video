@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from multi_video.window.base import BaseVideoWindow
 
@@ -9,11 +9,14 @@ class BasePlayer(ABC):
         self.model = baseWindow.model
         super().__init__(*args)
 
+    @abstractmethod
     def onStart(self):
         raise NotImplementedError
 
-    def onPause(self, isPause: bool):
+    @abstractmethod
+    def onPause(self, *, isPause: bool):
         raise NotImplementedError
 
+    @abstractmethod
     def onStop(self):
         raise NotImplementedError

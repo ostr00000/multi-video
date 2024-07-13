@@ -1,10 +1,10 @@
 from PyQt5.QtCore import QModelIndex
 from PyQt5.QtWidgets import QFileDialog
+from pyqt_utils.widgets.time_status_bar_dec import changeStatusDec
 
 from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
 from multi_video.window.base import BaseVideoWindow
-from pyqt_utils.widgets.time_status_bar import changeStatusDec
 
 
 class ModelManagement(BaseVideoWindow):
@@ -18,28 +18,33 @@ class ModelManagement(BaseVideoWindow):
 
     @changeStatusDec(msg="Files added.")
     def onAdd(self):
-        """Add selected files to model"""
+        """Add selected files to model."""
         extensions = ' '.join(f'*.{ext}' for ext in videoSettings.ALLOWED_EXTENSIONS)
         files, _ext = QFileDialog.getOpenFileNames(
-            self, "Select files to open", filter=f"Films ({extensions})")
+            self, "Select files to open", filter=f"Films ({extensions})"
+        )
         if files:
             self.model.appendRow(Row(files=files))
             return True
+        return None
 
     @changeStatusDec(msg="Rows deleted.")
     def onDelete(self):
-        """Delete selected row"""
-        if rows := self.tableView.selectionModel().selectedRows():
-            for r in sorted(rows, key=lambda i: i.row(), reverse=True):  # type: QModelIndex
-                self.model.removeRow(r.row())
-            return True
+        """Delete selected row."""
+        if not (rows := self.tableView.selectionModel().selectedRows()):
+            return None
+
+        for r in sorted(rows, key=lambda i: i.row(), reverse=True):
+            self.model.removeRow(r.row())
+
+        return True
 
     def onMoveUp(self):
-        """Move record up"""
+        """Move record up."""
         self._moveRecord(-1)
 
     def onMoveDown(self):
-        """Move record down"""
+        """Move record down."""
         self._moveRecord(1)
 
     @changeStatusDec(msg="Row moved.", failureMsg="No row selected.")
@@ -53,3 +58,4 @@ class ModelManagement(BaseVideoWindow):
         if 0 <= newRowNum < self.model.rowCount():
             self.model.moveRow(QModelIndex(), rowNum, QModelIndex(), newRowNum)
             return True
+        return None

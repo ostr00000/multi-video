@@ -1,9 +1,11 @@
 import logging
+from pathlib import Path
+
+from pyqt_utils.widgets.drop_file_dialog import DropFileDialog
+from pyqt_utils.widgets.time_status_bar_dec import changeStatusDec
 
 from multi_video.qobjects.settings import videoSettings
 from multi_video.window.base import BaseVideoWindow
-from pyqt_utils.widgets.drop_file_dialog import DropFileDialog
-from pyqt_utils.widgets.time_status_bar import changeStatusDec
 
 logger = logging.getLogger(__name__)
 
@@ -16,24 +18,27 @@ class SaveFileManager(BaseVideoWindow):
 
     @changeStatusDec(msg="Configuration saved.")
     def onSave(self):
-        """Save model to last file"""
-        if filePath := videoSettings.LAST_PATH:
-            with open(filePath, 'w') as file:
-                file.write(self.model.toJson())
+        """Save model to last file."""
+        if fileStrPath := videoSettings.LAST_PATH:
+            filePath = Path(fileStrPath)
+            filePath.write_text(self.model.toJson())
             return True
-        else:
-            self.onSaveAs()
+
+        self.onSaveAs()
+        return None
 
     @changeStatusDec(msg="Configuration saved.")
     def onSaveAs(self):
-        """Save model to new file"""
+        """Save model to new file."""
         fd = DropFileDialog(self, "Save Configuration")
         fd.setNameFilter("Configuration ( *.json )")
-        if fd.exec():
-            filePath = fd.selectedFiles()[0]
-            if not filePath.endswith('.json'):
-                filePath += '.json'
-            with open(filePath, 'w') as file:
-                file.write(self.model.toJson())
-            videoSettings.LAST_PATH = filePath
-            return True
+        if not fd.exec():
+            return None
+
+        filePath = Path(fd.selectedFiles()[0])
+        if not filePath.name.endswith('.json'):
+            filePath = filePath.with_name(filePath.name + '.json')
+
+        filePath.write_text(self.model.toJson())
+        videoSettings.LAST_PATH = str(filePath)
+        return True

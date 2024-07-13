@@ -1,13 +1,13 @@
 import more_itertools
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QColor, QIcon, QPainter, QCloseEvent
-from PyQt5.QtWidgets import QToolButton, QAction, QInputDialog
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QCloseEvent, QColor, QIcon, QPainter
+from PyQt5.QtWidgets import QAction, QInputDialog, QToolButton
+from pyqt_utils.widgets.time_status_bar_dec import changeStatusDec
 
 from multi_video.managers.add_from_tag.select_tag_dialog import SelectTagDialog
 from multi_video.model.row import Row
 from multi_video.qobjects.settings import videoSettings
 from multi_video.window.base import BaseVideoWindow
-from pyqt_utils.widgets.time_status_bar import changeStatusDec
 
 
 class AddFromTag(BaseVideoWindow):
@@ -23,17 +23,20 @@ class AddFromTag(BaseVideoWindow):
         self.toolButtonAdd.setPopupMode(QToolButton.MenuButtonPopup)
 
         self.addSingleFromTags = QAction(
-            self._getIcon(Qt.red), "Add single from tags", self.toolButtonAdd)
+            self._getIcon(QColor(Qt.red)), "Add single from tags", self.toolButtonAdd
+        )
         self.addSingleFromTags.setObjectName('addSingleFromTags')
         self.addSingleFromTags.triggered.connect(self.onAddSingleFromTagTriggered)
 
         self.addManyFromTags = QAction(
-            self._getIcon(Qt.blue), "Add many from tags", self.toolButtonAdd)
+            self._getIcon(QColor(Qt.blue)), "Add many from tags", self.toolButtonAdd
+        )
         self.addManyFromTags.setObjectName('addManyFromTags')
         self.addManyFromTags.triggered.connect(self.onAddManyFromTagTriggered)
 
         self.addTagGenerator = QAction(
-            self._getIcon(QColor('orange')), "Add tag generator", self.toolButtonAdd)
+            self._getIcon(QColor('orange')), "Add tag generator", self.toolButtonAdd
+        )
         self.addTagGenerator.setObjectName('addTagGenerator')
         self.addTagGenerator.triggered.connect(self.onAddTagGeneratorTriggered)
 
@@ -50,8 +53,7 @@ class AddFromTag(BaseVideoWindow):
         painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
         painter.fillRect(pixmap.rect(), color)
         painter.end()
-        icon = QIcon(pixmap)
-        return icon
+        return QIcon(pixmap)
 
     def _replaceActionToToolButton(self):
         self.toolBar.insertWidget(self.actionAdd, self.toolButtonAdd)
@@ -81,23 +83,30 @@ class AddFromTag(BaseVideoWindow):
             if tagFiles:
                 self.model.appendRow(Row(files=tagFiles))
                 return True
+            return None
+        return None
 
     @changeStatusDec(msg="Many rows from tag files added.")
     def onAddManyFromTagTriggered(self):
         """Add many rows to model from files generated from tags."""
         dlg = SelectTagDialog(self)
         if not dlg.exec_():
-            return
+            return None
 
         tagFiles = dlg.getTagFiles()
         if not tagFiles:
-            return
+            return None
 
         num, ok = QInputDialog.getInt(
-            self, "Video number", "Get number of video row",
-            value=min(36, len(tagFiles)), min=1, max=min(144, len(tagFiles)))
+            self,
+            "Video number",
+            "Get number of video row",
+            value=min(36, len(tagFiles)),
+            min=1,
+            max=min(144, len(tagFiles)),
+        )
         if not ok:
-            return
+            return None
 
         for tagFilesGen in more_itertools.distribute(num, tagFiles):
             tagFilesSeq = list(tagFilesGen)
@@ -108,10 +117,10 @@ class AddFromTag(BaseVideoWindow):
     @changeStatusDec(msg="Tag generator added.")
     def onAddTagGeneratorTriggered(self):
         if not (dlg := SelectTagDialog(self)).exec_():
-            return
+            return None
 
         if not (tagGenerators := list(dlg.genTagGenerators())):
-            return
+            return None
 
         for tagGen in tagGenerators:
             self.model.appendRow(tagGen)

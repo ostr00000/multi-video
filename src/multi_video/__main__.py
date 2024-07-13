@@ -1,7 +1,7 @@
 import faulthandler
 import logging
 
-from multi_video import moduleName, appName, appDisplayName, orgName
+from multi_video import appDisplayName, appName, moduleName, orgName
 
 
 # noinspection DuplicatedCode
@@ -13,6 +13,7 @@ def main():
     mainLogger.setLevel(logging.DEBUG)
 
     from PyQt5.QtWidgets import QApplication
+
     from multi_video.window.main import VideoWindow
 
     app = QApplication([])

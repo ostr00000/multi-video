@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import locale
 import logging
 from enum import Enum
@@ -8,10 +9,10 @@ from random import randint
 from threading import Timer
 
 import mpv
-from PyQt5.QtCore import Qt, QPointF, QEvent
-from PyQt5.QtGui import QMouseEvent
-from PyQt5.QtWidgets import QWidget, QApplication
 from decorator import decorator
+from PyQt5.QtCore import QEvent, QPointF, Qt
+from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtWidgets import QApplication, QWidget
 
 from multi_video.qobjects.settings import videoSettings
 
@@ -24,24 +25,25 @@ class MpvMouseButton(Enum):
     MID = 'MBTN_MID'
     DOUBLE = 'MBTN_LEFT_DBL'
 
+    _mapToQtButton: dict[MpvMouseButton, Qt.MouseButton]
+    _mapToEventType: dict[MpvMouseButton, QEvent.Type]
+
     @classmethod
     def getQtButton(cls, button: MpvMouseButton) -> Qt.MouseButton:
-        # noinspection PyUnresolvedReferences
         return cls._mapToQtButton[button]
 
     @classmethod
     def getEventType(cls, button: MpvMouseButton) -> QEvent.Type:
-        # noinspection PyUnresolvedReferences
         return cls._mapToEventType[button]
 
 
-MpvMouseButton._mapToQtButton = {
+MpvMouseButton._mapToQtButton = {  # noqa: SLF001 # SKIP: must use enum values
     MpvMouseButton.LEFT: Qt.LeftButton,
     MpvMouseButton.RIGHT: Qt.RightButton,
     MpvMouseButton.MID: Qt.MidButton,
     MpvMouseButton.DOUBLE: Qt.LeftButton,
 }
-MpvMouseButton._mapToEventType = {
+MpvMouseButton._mapToEventType = {  # noqa: SLF001 # SKIP: must use enum values
     MpvMouseButton.LEFT: QMouseEvent.MouseButtonPress,
     MpvMouseButton.RIGHT: QMouseEvent.MouseButtonPress,
     MpvMouseButton.MID: QMouseEvent.MouseButtonPress,
@@ -53,9 +55,9 @@ MpvMouseButton._mapToEventType = {
 def ignoreShutdown(fun, *args, **kwargs):
     try:
         fun(*args, **kwargs)
-        return True
     except mpv.ShutdownError:
         return False
+    return True
 
 
 class MpvPlayerWidget(QWidget):
@@ -76,8 +78,9 @@ class MpvPlayerWidget(QWidget):
         self.player = mpv.MPV(
             wid=str(int(self.winId())),
             log_handler=self.logHandler,
+            start_event_thread=True,
             loglevel=self.LogLevel.INFO,
-            **{'loop-playlist': 'inf', 'vo': 'x11'}
+            **{'loop-playlist': 'inf', 'vo': 'x11'},
         )
         self._enableMouseEvent(MpvMouseButton.MID)
         self._enableMouseEvent(MpvMouseButton.DOUBLE)
@@ -96,9 +99,14 @@ class MpvPlayerWidget(QWidget):
 
     @staticmethod
     def setMpvLocale():
-        """
-        This is necessary since PyQT stomps over the locale settings needed by libmpv.
-        This needs to happen after importing PyQT before creating the first mpv.MPV instance.
+        """Set required locale for MPV player.
+
+        This is necessary since PyQt stomps
+        over the locale settings needed by `libmpv`.
+        This needs to happen after importing PyQT and
+        before creating the first mpv.MPV instance.
+
+        https://gist.github.com/Laeri/7a1bd811c947d4560c5cbc160360e858
         """
         locale.setlocale(locale.LC_NUMERIC, 'C')
 
@@ -117,14 +125,16 @@ class MpvPlayerWidget(QWidget):
             return
 
         minLength = videoSettings.MINIMAL_LENGTH_TO_ACTIVATE_RANDOM_PART
-        duration = self.player.duration
-        if duration:
-            if duration >= minLength:
+        if duration := self.player.duration:
+            if isinstance(duration, int) and duration >= minLength:
                 self._setRandomPosition()
                 logger.debug(f"[{id(self)}] set random position - new file")
         else:
-            Timer(timeDelay, self.onFileChanged,
-                  args=(propertyName, propertyValue, timeDelay * 2)).start()
+            Timer(
+                timeDelay,
+                self.onFileChanged,
+                args=(propertyName, propertyValue, timeDelay * 2),
+            ).start()
             logger.debug(f"[{id(self)}] no duration property - try again")
 
     def _setRandomPosition(self):
@@ -132,11 +142,15 @@ class MpvPlayerWidget(QWidget):
             duration = int(duration)
             newDuration = videoSettings.RANDOM_PART_DURATION
 
-            startTime = randint(0, duration - newDuration)
+            startTime = randint(  # noqa: S311  #SKIP not cryptographic
+                0, duration - newDuration
+            )
             endTime = startTime + newDuration
             self.player.__setattr__('time-pos', startTime)
 
-            Timer(newDuration, self.onRandomPartEnd, args=(self.player.filename, endTime)).start()
+            Timer(
+                newDuration, self.onRandomPartEnd, args=(self.player.filename, endTime)
+            ).start()
 
     @ignoreShutdown
     def onRandomPartEnd(self, currentFile, endTime):
@@ -160,9 +174,15 @@ class MpvPlayerWidget(QWidget):
 
     @ignoreShutdown
     def play(self, filenames: list[str]):
-        """For some reason need to wait,
-        otherwise deadlock or 'double free or corruption (!prev)' may occur"""
-        assert filenames
+        """Play the given files.
+
+        For some reason need to wait,
+        otherwise deadlock or `double free or corruption (!prev)` may occur.
+        """
+        if not filenames:
+            msg = "Must specify filenames"
+            raise ValueError(msg)
+
         with self.player.prepare_and_wait_for_event('file-loaded'):
             isFirst = True
             for fn in filenames:
@@ -173,13 +193,13 @@ class MpvPlayerWidget(QWidget):
 
                 self.player.playlist_append(fn)
 
-    def setPause(self, isPause: bool = True, change=False):
+    def setPause(self, *, isPause: bool = True, change=False):
         if change:
             self.player.cycle('pause')
         else:
             self.player.pause = isPause
 
-    def setMute(self, isMute: bool = True, change=False):
+    def setMute(self, *, isMute: bool = True, change=False):
         if change:
             self.player.cycle('mute')
         else:
@@ -187,10 +207,10 @@ class MpvPlayerWidget(QWidget):
 
     def stop(self):
         self.player.quit(0)
-        try:
+
+        with contextlib.suppress(mpv.ShutdownError):
+            # Ignore shutdown error
             self.player.wait_for_shutdown()
-        except mpv.ShutdownError:
-            pass  # it is what we need
 
     def closeEvent(self, closeEvent):
         self.stop()

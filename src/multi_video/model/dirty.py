@@ -1,5 +1,5 @@
-from PyQt5.QtCore import QAbstractTableModel, pyqtSignal, pyqtProperty
 from decorator import decorator
+from PyQt5.QtCore import QAbstractTableModel, pyqtProperty, pyqtSignal
 
 
 class DirtyModel(QAbstractTableModel):
@@ -9,15 +9,15 @@ class DirtyModel(QAbstractTableModel):
         super().__init__(*args, **kwargs)
         self._dirty = False
 
-    def getDirty(self):
+    def _getDirty(self):
         return self._dirty
 
-    def setDirty(self, value: bool):
+    def _setDirty(self, value: bool):  # noqa: FBT001 # SKIP: used as property
         if self._dirty is not value:
             self._dirty = value
             self.dirtyChanged.emit(value)
 
-    isDirty = pyqtProperty(bool, getDirty, setDirty, notify=dirtyChanged)
+    isDirty = pyqtProperty(bool, _getDirty, _setDirty, notify=dirtyChanged)
 
     @staticmethod
     @decorator

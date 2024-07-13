@@ -19,11 +19,11 @@ class MpvPlayer(BasePlayer):
         self._playerWidgetGroup: MpvPlayerGroupWidget | None = None
 
     def onStart(self):
-        if self._playerWidgetGroup:
+        if self._playerWidgetGroup is not None:
             self._playerWidgetGroup.raise_()
-            self._playerWidgetGroup.pause(False)
+            self._playerWidgetGroup.pause(isPause=False)
             self.baseWindow.actionPause.setChecked(False)
-            return
+            return None
 
         self._playerWidgetGroup = MpvPlayerGroupWidget()
         self._playerWidgetGroup.installEventFilter(self.baseWindow)
@@ -33,12 +33,19 @@ class MpvPlayer(BasePlayer):
         self._playerWidgetGroup.show()
         QApplication.processEvents(QEventLoop.ExcludeUserInputEvents)
 
-        Thread(target=self._startPlayers, name='startPlayer',
-               args=(list(self.model),), daemon=True).start()
+        Thread(
+            target=self._startPlayers,
+            name='startPlayer',
+            args=(list(self.model),),
+            daemon=True,
+        ).start()
 
         return True
 
     def _startPlayers(self, rows: list[BaseRow]):
+        if self._playerWidgetGroup is None:
+            return
+
         try:
             for i, row in enumerate(rows):
                 if files := row.getFiles():
@@ -52,19 +59,19 @@ class MpvPlayer(BasePlayer):
     def onPlayerDestroyed(self):
         self._playerWidgetGroup = None
 
-    def onPause(self, isPause: bool):
-        if self._playerWidgetGroup:
-            self.baseWindow.actionPause.setChecked(isPause)
-            if not isPause:
-                self._playerWidgetGroup.raise_()
-            self._playerWidgetGroup.pause(isPause)
-            return isPause
-        else:
+    def onPause(self, isPause) -> bool | None:
+        if self._playerWidgetGroup is None:
             self.baseWindow.actionPause.setChecked(False)
-            return
+            return None
 
-    def onStop(self):
-        if self._playerWidgetGroup:
+        self.baseWindow.actionPause.setChecked(isPause)
+        if not isPause:
+            self._playerWidgetGroup.raise_()
+        self._playerWidgetGroup.pause(isPause=isPause)
+        return isPause
+
+    def onStop(self) -> bool:
+        if self._playerWidgetGroup is not None:
             self.baseWindow.actionPause.setChecked(False)
             self._playerWidgetGroup.close()
         return True

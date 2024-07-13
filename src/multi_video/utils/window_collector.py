@@ -19,8 +19,8 @@ class WindowCollector:
             QThread.msleep(videoSettings.VLC_SLEEP_TIME_LLmsJJ)
             try:
                 newerWid = set(self.getWid())
-            except ValueError as er:
-                logger.error(er)
+            except ValueError:
+                logger.exception("Cannot extract window ID")
                 return []
 
         ret = list(newerWid - self.allWid)
@@ -32,5 +32,4 @@ class WindowCollector:
         output = runCommand('xdotool search vlc')
         if not output:
             logger.warning("xdotool return empty string")
-        output = [int(wid) for wid in output.split('\n')]
-        return output
+        return [int(wid) for wid in output.split('\n')]

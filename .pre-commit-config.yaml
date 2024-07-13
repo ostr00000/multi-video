@@ -1,0 +1,146 @@
+# This file may be generated from template.
+# If you want to customize it, then place custom content between
+# special markers `START_SKIP_AREA`, `END_SKIP_AREA`.
+
+default_language_version:
+  python: python3.12
+
+exclude: |  # python regex
+  (?x)        # verbose regex
+  ^(?:        # start of filename
+    .*_ui.py  # Qt generated files
+  )$          # end of filename
+
+repos:
+  - repo: meta
+    hooks:
+      - id: identity
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: [ '--maxkb=500' ]
+        exclude: .*\.(qgs|xml)
+      - id: check-ast
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-xml
+      - id: check-yaml
+      - id: trailing-whitespace
+        exclude: .*\.(xml)
+      - id: end-of-file-fixer
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.18
+    hooks:
+      - id: validate-pyproject
+
+  - repo: https://github.com/pappasam/toml-sort
+    rev: v0.23.1
+    hooks:
+      - id: toml-sort-fix
+        args:
+          - --trailing-comma-inline-array
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.22.7
+    hooks:
+      - id: typos
+        name: typos-diff
+        args:
+          - --diff
+      - id: typos
+        name: typos-fix
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.3.0
+    hooks:
+      - id: codespell
+        additional_dependencies: [ tomli ]
+
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.17
+    hooks:
+      - id: mdformat
+        additional_dependencies:
+          # plugins to format for GitHub:
+          - mdformat-gfm
+          - mdformat-frontmatter
+          - mdformat-footnote
+          # plugin to format code blocks using `black` formatter:
+          - mdformat-black
+        args: [ --number ]
+
+  - repo: https://github.com/MarcoGorelli/auto-walrus
+    rev: 0.3.4
+    hooks:
+      - id: auto-walrus
+        args: [ --line-length=89 ]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.9
+    hooks:
+      - id: ruff
+        name: ruff-diff
+        args: [ --exit-non-zero-on-fix, --diff ]
+
+      - id: ruff
+        name: ruff-show-fixes
+        args: [ --exit-non-zero-on-fix, --show-fixes, --output-format=full]
+
+      - id: ruff
+        name: ruff-auto-fix
+        args: [ --exit-non-zero-on-fix, --fix, --statistics]
+
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+
+  - repo: https://github.com/jendrikseipp/vulture
+    rev: v2.11
+    hooks:
+      - id: vulture
+
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.367
+    hooks:
+      - id: pyright
+        verbose: true
+
+#  - repo: local
+#    hooks:
+#      - id: mypy-local
+#        name: Mypy local
+#        description:
+#          Install current package in editable mode and then run mypy.
+#          The installation is required, because mypy is unable to use stub only
+#          packages pointed by `mypy_path`.
+#        entry: bash -x -c 'pip install --editable .[all]  && mypy'
+#        language: python
+#        types: [ python ]
+#        pass_filenames: false
+#        verbose: true
+#        additional_dependencies:
+#          - mypy==1.6.1
+#        args:
+#          - --strict
+#          - --always-true=PYQT5
+#          - --always-false=PYSIDE2
+#          - --always-false=PYQT6
+#          - --always-false=PYSIDE6
+
+ci:
+  autoupdate_schedule: monthly
+  skip:
+    - pyright # https://github.com/RobertCraigie/pyright-python/issues/164
