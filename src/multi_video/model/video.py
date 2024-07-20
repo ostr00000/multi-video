@@ -9,6 +9,7 @@ from multi_video.model.row import BaseRow
 from multi_video.utils.split_window import Position
 
 logger = logging.getLogger(__name__)
+_topModelIndex = QModelIndex()
 
 
 class VideoModel(DirtyModel):
@@ -98,7 +99,7 @@ class VideoModel(DirtyModel):
         self.endInsertRows()
 
     @DirtyModel.dirtyDec
-    def removeRows(self, row: int, count: int, parent=QModelIndex()):
+    def removeRows(self, row: int, count: int, parent=_topModelIndex):
         self.beginRemoveRows(parent, row, row + count - 1)
         del self._data[row : row + count]
         self.endRemoveRows()

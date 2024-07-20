@@ -65,6 +65,9 @@ pre_commit_install:
 pre_commit_uninstall:
 	-$(PYTHON_EXEC) -m pre_commit uninstall
 
+pre_commit_autoupdate:
+	$(PYTHON_EXEC) -m pre_commit autoupdate
+
 pre_commit:
 	$(PYTHON_EXEC) -m pre_commit run --all-files
 

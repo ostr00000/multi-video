@@ -28,7 +28,6 @@ requires-python = '>=3.12'
 [project.optional-dependencies]
 dev = ['matplotlib']
 # END_SKIP_AREA
-
 [tool.black]
 skip-string-normalization = true
 
@@ -59,7 +58,6 @@ namespace-packages = [
     "src/manager/actions"
 ]
 # END_SKIP_AREA
-
 
 [tool.ruff.lint]
 select = [
@@ -138,21 +136,11 @@ external = [
     "F841", # SKIP: this is code used in vulture
 ]
 
-[tool.ruff.lint.flake8-bugbear]
-extend-immutable-calls = ["PyQt5.QtCore.QModelIndex"]
-
-[tool.ruff.lint.isort]
-known-third-party = []
-
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
 
 [tool.ruff.lint.pylint]
 max-args = 8
-
-[tool.setuptools.packages.find]
-where = ['src']
-exclude = ['*tests*']
 
 [tool.vulture]
 # ignore_names = []
