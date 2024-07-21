@@ -16,7 +16,7 @@ dependencies = [
     'decorator',
     'more-itertools',
     'progressbar2',
-    'pyqt-settings @ git+https://github.com/ostr00000/pyqt-settings@master#egg=pyqt-settings',
+    'pyqt-settings @ git+https://github.com/ostr00000/pyqt-settings@master',
     'python-mpv',
 ]
 # END_SKIP_AREA
@@ -53,11 +53,7 @@ PYSIDE6 = false
 # https://docs.astral.sh/ruff/configuration/
 target-version = "py312"
 unsafe-fixes = true
-# START_SKIP_AREA
-namespace-packages = [
-    "src/manager/actions"
-]
-# END_SKIP_AREA
+namespace-packages = ["src/manager/actions"]  # START_SKIP_AREA END_SKIP_AREA
 
 [tool.ruff.lint]
 select = [
