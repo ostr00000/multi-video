@@ -78,13 +78,15 @@ class AddFromTag(BaseVideoWindow):
     def onAddSingleFromTagTriggered(self):
         """Add one row to model from files generated from tags."""
         dlg = SelectTagDialog(self)
-        if dlg.exec_():
-            tagFiles = dlg.getTagFiles()
-            if tagFiles:
-                self.model.appendRow(Row(files=tagFiles))
-                return True
+        if not dlg.exec_():
             return None
-        return None
+
+        tagFiles = dlg.getTagFiles()
+        if not tagFiles:
+            return None
+
+        self.model.appendRow(Row(files=tagFiles))
+        return True
 
     @changeStatusDec(msg="Many rows from tag files added.")
     def onAddManyFromTagTriggered(self):
