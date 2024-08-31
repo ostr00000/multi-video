@@ -5,6 +5,8 @@ from pyqt_utils.qobjects.display_widget_action import DisplayWidgetAction
 
 
 class PluginVideoAction(DisplayWidgetAction[VideoWindow]):
+    sortOrder = 220
+
     def __init__(self, parent):
         icon = QIcon('multi-video:vlc.svg')
         super().__init__(icon, 'Video', parent)
