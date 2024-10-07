@@ -1,7 +1,8 @@
-from multi_video.window.main import VideoWindow
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget
 from pyqt_utils.qobjects.display_widget_action import DisplayWidgetAction
+
+from multi_video.window.main import VideoWindow
 
 
 class PluginVideoAction(DisplayWidgetAction[VideoWindow]):
