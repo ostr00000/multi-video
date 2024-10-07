@@ -17,7 +17,7 @@ repos:
       - id: identity
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
         args: [ '--maxkb=500' ]
@@ -41,7 +41,7 @@ repos:
       - id: shellcheck
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.18
+    rev: v0.20.2
     hooks:
       - id: validate-pyproject
 
@@ -53,7 +53,7 @@ repos:
           - --trailing-comma-inline-array
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.22.7
+    rev: v1.26.0
     hooks:
       - id: typos
         name: typos-diff
@@ -88,7 +88,7 @@ repos:
         args: [ --line-length=89 ]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.9
+    rev: v0.6.9
     hooks:
       - id: ruff
         name: ruff-diff
@@ -103,17 +103,17 @@ repos:
         args: [ --exit-non-zero-on-fix, --fix, --statistics]
 
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 24.8.0
     hooks:
       - id: black
 
   - repo: https://github.com/jendrikseipp/vulture
-    rev: v2.11
+    rev: v2.13
     hooks:
       - id: vulture
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.372
+    rev: v1.1.383
     hooks:
       - id: pyright
         verbose: true
