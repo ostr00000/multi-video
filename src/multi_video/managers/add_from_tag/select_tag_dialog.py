@@ -61,13 +61,11 @@ class SelectTagDialog(
         self.tagWidgetPlaceholder.hide()
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
-        if (
+        return bool(
             obj is self.tagWidget
             and isinstance(event, QKeyEvent)
             and event.key() == Qt.Key_Escape
-        ):
-            return True
-        return False
+        )
 
     def onChangeTagDir(self):
         baseTagDir = Path(self.tagDirLineEdit.text())

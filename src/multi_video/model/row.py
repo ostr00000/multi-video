@@ -26,7 +26,7 @@ class Enum:
 @dataclass
 class DataClass(Enum):
     def replace(self, index: int, val):
-        k, v = list(self.getDict())[index]
+        k, _v = list(self.getDict())[index]
         setattr(self, k, val)
 
 

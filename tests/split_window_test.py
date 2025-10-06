@@ -2,6 +2,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 from matplotlib import patches
+
 from multi_video.utils.split_window import Position, calculatePosition
 
 
