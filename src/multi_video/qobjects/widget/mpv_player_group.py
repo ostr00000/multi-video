@@ -27,7 +27,7 @@ class _FrameWrapper(QFrame):
     def onMuteChanged(
         self,
         propertyName: str,
-        propertyValue: bool,  # noqa: FBT001 # SKIP mpv API
+        propertyValue: bool,
     ):
         if propertyName != 'mute':
             raise ValueError

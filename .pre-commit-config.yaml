@@ -45,13 +45,6 @@ repos:
     hooks:
       - id: validate-pyproject
 
-  - repo: https://github.com/pappasam/toml-sort
-    rev: v0.24.3
-    hooks:
-      - id: toml-sort-fix
-        args:
-          - --trailing-comma-inline-array
-
   - repo: https://github.com/adhtruong/mirrors-typos
     # original repo: https://github.com/crate-ci/typos
     # we use mirror repo, because tags in original repo are broken:

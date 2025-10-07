@@ -115,7 +115,7 @@ class VlcPlayer(BasePlayer):
 
         logFile = self.getLogFile(row)
         return Popen(
-            cmd,  # noqa: S603 # SKIP no option to validate this
+            cmd,
             stderr=logFile,
             stdout=logFile,
             stdin=PIPE,

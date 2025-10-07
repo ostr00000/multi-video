@@ -30,7 +30,7 @@ class SaveFileManager(BaseVideoWindow):
     @changeStatusDec(msg="Configuration saved.")
     def onSaveAs(self):
         """Save model to new file."""
-        fd = DropFileDialog(self, "Save Configuration")
+        fd = DropFileDialog(self, "Save Configuration")  # type: ignore[reportArgumentType]
         fd.setNameFilter("Configuration ( *.json )")
         if not fd.exec():
             return None

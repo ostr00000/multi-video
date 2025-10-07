@@ -1,6 +1,8 @@
 import faulthandler
 import logging
 
+from PyQt5.QtWidgets import QApplication
+
 from multi_video import appDisplayName, appName, moduleName, orgName
 
 
@@ -12,9 +14,7 @@ def main():
     mainLogger = logging.getLogger(moduleName)
     mainLogger.setLevel(logging.DEBUG)
 
-    from PyQt5.QtWidgets import QApplication
-
-    from multi_video.window.main import VideoWindow
+    from multi_video.window.main import VideoWindow  # noqa: PLC0415
 
     app = QApplication([])
     app.setApplicationName(appName)
