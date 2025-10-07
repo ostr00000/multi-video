@@ -8,7 +8,7 @@ def runCommand(command: str) -> str:
     logger.debug(f"Executing: '{command}'")
 
     process = Popen(
-        [  # noqa: S603 # SKIP no option to validate this
+        [
             '/usr/bin/bash',
             '-c',
             command,

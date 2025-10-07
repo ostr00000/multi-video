@@ -17,7 +17,7 @@ repos:
       - id: identity
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
         args: [ '--maxkb=500' ]
@@ -36,24 +36,20 @@ repos:
       - id: end-of-file-fixer
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
+    rev: v0.11.0.1
     hooks:
       - id: shellcheck
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.18
+    rev: v0.24.1
     hooks:
       - id: validate-pyproject
 
-  - repo: https://github.com/pappasam/toml-sort
-    rev: v0.23.1
-    hooks:
-      - id: toml-sort-fix
-        args:
-          - --trailing-comma-inline-array
-
-  - repo: https://github.com/crate-ci/typos
-    rev: v1.22.7
+  - repo: https://github.com/adhtruong/mirrors-typos
+    # original repo: https://github.com/crate-ci/typos
+    # we use mirror repo, because tags in original repo are broken:
+    # https://github.com/crate-ci/typos/issues/390
+    rev: v1.37.2
     hooks:
       - id: typos
         name: typos-diff
@@ -63,13 +59,13 @@ repos:
         name: typos-fix
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
       - id: codespell
         additional_dependencies: [ tomli ]
 
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.17
+    rev: 0.7.22
     hooks:
       - id: mdformat
         additional_dependencies:
@@ -88,7 +84,7 @@ repos:
         args: [ --line-length=89 ]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.9
+    rev: v0.13.3
     hooks:
       - id: ruff
         name: ruff-diff
@@ -102,18 +98,18 @@ repos:
         name: ruff-auto-fix
         args: [ --exit-non-zero-on-fix, --fix, --statistics]
 
-  - repo: https://github.com/psf/black
-    rev: 24.4.2
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 25.9.0
     hooks:
       - id: black
 
   - repo: https://github.com/jendrikseipp/vulture
-    rev: v2.11
+    rev: v2.14
     hooks:
       - id: vulture
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.372
+    rev: v1.1.406
     hooks:
       - id: pyright
         verbose: true

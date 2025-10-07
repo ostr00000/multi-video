@@ -12,7 +12,7 @@ class DirtyModel(QAbstractTableModel):
     def _getDirty(self):
         return self._dirty
 
-    def _setDirty(self, value: bool):  # noqa: FBT001 # SKIP: used as property
+    def _setDirty(self, value: bool):
         if self._dirty is not value:
             self._dirty = value
             self.dirtyChanged.emit(value)

@@ -47,7 +47,7 @@ class PositionManager(BaseVideoWindow):
         output = runCommand('ps -eo pid,command | grep vlc')
         result: list[str] = []
         for line in output.split('\n'):
-            pid, command = line.split(maxsplit=1)
+            _pid, command = line.split(maxsplit=1)
             if not (match := cls.VLC_FILE_ARG_PATTERN.match(command)):
                 continue
 

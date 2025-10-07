@@ -115,11 +115,9 @@ def getRectangle(elements: Sized):
     return getMinimumRectangle(elements)
 
 
-def calculatePosition[
-    X
-](elements: Collection[X], width: int | None = None, height: int | None = None) -> dict[
-    X, Position
-]:
+def calculatePosition[X](
+    elements: Collection[X], width: int | None = None, height: int | None = None
+) -> dict[X, Position]:
     """Return map with elements mapped to Position."""
     cx, cy = getRectangle(elements)
     total = cx * cy

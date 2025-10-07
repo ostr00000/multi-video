@@ -1,14 +1,11 @@
 from collections.abc import Iterator
-from typing import TypeVar
 
 from PyQt5.QtCore import QAbstractTableModel, QCoreApplication, Qt
 
-_A = TypeVar('_A')
 
-
-def dataChangeIterator(
-    it: Iterator[_A], model: QAbstractTableModel, *columns: int
-) -> Iterator[_A]:
+def dataChangeIterator[A](
+    it: Iterator[A], model: QAbstractTableModel, *columns: int
+) -> Iterator[A]:
     for i, data in enumerate(it):
         yield data
         for column in columns:
@@ -17,7 +14,7 @@ def dataChangeIterator(
             )
 
 
-def processEventsIterator(it: Iterator[_A]) -> Iterator[_A]:
+def processEventsIterator[A](it: Iterator[A]) -> Iterator[A]:
     if (app := QCoreApplication.instance()) is None:
         msg = "No QCoreApplication instance found"
         raise RuntimeError(msg)

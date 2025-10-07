@@ -57,37 +57,34 @@ namespace-packages = ["src/manager/actions"]  # START_SKIP_AREA END_SKIP_AREA
 
 [tool.ruff.lint]
 select = [
-    'F', # Pyflakes
-    'E', # pycodestyle: Error
-    'W', # pycodestyle: Warning
-    'C90', # mccabe
-    'I', # isort
-    # 'N', # pep8-naming # SKIP: we use camelCase style
-    'D', # pydocstyle
-    'UP', # pyupgrade
+    'AIR', # Airflow
+    'ERA', # eradicate
+    'FAST', # FastAPI
     'YTT', # flake8-2020
     # 'ANN', # flake8-annotations # SKIP: annotations are optional
     'ASYNC', # flake8-async
-    'TRIO', # flake8-trio
     'S', # flake8-bandit
     'BLE', # flake8-blind-except
-    'FBT', # flake8-boolean-trap
+    # 'FBT', # flake8-boolean-trap # SKIP: we recommend this, but not force. Qt often expect positional args.
     'B', # flake8-bugbear
     'A', # flake8-builtins
-    'COM', # flake8-commas
-    # 'CPY', # flake8-copyright # SKIP: copyright should be added once, in file
+    # 'COM', # flake8-commas # SKIP: we use formatter which can add a comma if needed.
     'C4', # flake8-comprehensions
+    # 'CPY', # flake8-copyright # SKIP: we believe the copyright should be added once, in file
     'DTZ', # flake8-datetimez
     'T10', # flake8-debugger
     'DJ', # flake8-django
     'EM', # flake8-errmsg
     'EXE', # flake8-executable
+    'FIX', # flake8-fix me
     'FA', # flake8-future-annotations
+    'INT', # flake8-gettext # NOTE: does not work for Qt `tr` methods
     'ISC', # flake8-implicit-str-concat
     'ICN', # flake8-import-conventions
-    'G', # flake8-logging-format
+    'LOG', # flake8-logging
+    # 'G', # flake8-logging-format # SKIP: we do not aggregate logs, so there may be f-strings, also in future we may convert to t-strings
     'INP', # flake8-no-pep420
-    'PIE', # flake8-pie # NOTE: not sure if this work?
+    'PIE', # flake8-pie
     'T20', # flake8-print
     'PYI', # flake8-pyi
     'PT', # flake8-pytest-style
@@ -95,38 +92,69 @@ select = [
     'RSE', # flake8-raise
     'RET', # flake8-return
     'SLF', # flake8-self
-    'SLOT', # flake8-slots
     'SIM', # flake8-simplify
-    'TID', # flake8-tidy-imports # NOTE: in some dynamic packages, we want to ignore TID252
-    'TCH', # flake8-type-checking
-    'INT', # flake8-gettext # NOTE: not working for QT tr
+    'SLOT', # flake8-slots
+    'TID', # flake8-tidy-imports # NOTE: in some dynamic packages, we may want to ignore TID252
+    'TD', # flake8-todos
+    'TC', # flake8-type-checking
     # 'ARG', # flake8-unused-arguments # SKIP: this may be part of API, overridden in subclass
     'PTH', # flake8-use-pathlib
-    'TD', # flake8-todos
-    'FIX', # flake8-fix me
-    'ERA', # eradicate
+    'FLY', # flynt
+    'I', # isort
+    'C90', # mccabe
+    'NPY', # NumPy-specific rules
     'PD', # pandas-vet
+    'N', # pep8-naming # NOTE: sometimes we use camelCase style
+    'PERF', # Perflint
+    'E', 'W', # pycodestyle
+    # 'DOC', # pydoclint # SKIP: this has no effect when ruff preview is not enabled
+    # 'D', # pydocstyle # SKIP: we use another docsting formatter, moreover ruff do not support sphinx format
+    'F', # Pyflakes
     'PGH', # pygrep-hooks
     'PL', # Pylint
-    'TRY', # tryceratops
-    'FLY', # flynt
-    'NPY', # NumPy-specific rules
-    'AIR', # Airflow
-    'PERF', # Perflint
+    'PLE', # Error
+    'PLR', # Refactor
+    'PLW', # Warning
+    'UP', # pyupgrade
     'FURB', # refurb
-    'LOG', # flake8-logging
     'RUF', # Ruff-specific rules
+    'TRY', # tryceratops
 ]
 unfixable = [
     'B', # flake8-bugbear
     'F841', # remove unused variable
     'ERA001', # commented-out-code
+    'SIM118', # in-dict-keys # SKIP: not all `keys()` method is on the `dict`
     'RUF100', # unused-noqa # SKIP: better check manually why the `noqa` marker was placed
+    'E711', # Comparison to `None` # SKIP: sqlalchemy should be manually replaced with method
 ]
 ignore = [
-    'D1', # Missing docstring # SKIP: this is not API library
-    'G004', # Checks for uses of f-strings to format logging messages. # SKIP: there is little performance gain and the code seems to be prettier
-    'COM812', # Checks for the absence of trailing commas. # SKIP: `black` adds it when needed
+    'S603', # subprocess call: check for execution of untrusted input
+    # SKIP: there is no way to fix this, only ignore can be used
+
+    'S606', # Start process with no shell # SKIP: This is the safest way to start process.
+    'PLE1205', # Too many arguments for `logging` format string # SKIP: we have extended logger class
+    'PERF203', # try-except-in-loop # SKIP: small impact on performance + improved in python 3.11
+
+    'PLW1509', # `preexec_fn` argument is unsafe when using threads
+    # SKIP: there is no real replacement at this moment
+    # code based on: https://stackoverflow.com/a/43152455
+    # python issue: https://github.com/python/cpython/issues/86902
+
+    'FIX002', # line-contains-to do
+    # SKIP: We allow commit these markers,
+    # but issue/bug should be reported.
+    # You can use `FIX ME` markers if you do not want to pass checks.
+
+    # SKIP: we use camelCase styles, this rule is enabled, because other rules are useful
+    'N802', # invalid-function-name # Example: def myFunction():
+    'N803', # invalid-argument-name # Example: def my_unction(myArg):
+    'N806', # non-lowercase-variable-in-function # Example: myVariable
+    'N812', # lowercase-imported-as-non-lowercase # Example: import decorator as decoratorLib
+    'N813', # camelcase-imported-as-lowercase # Example: from mod import myLongObjectName as ml
+    'N815', # mixed-case-variable-in-class-scope # Example: myVariable
+    'N816', # mixed-case-variable-in-global-scope # Example: myVariable
+    'N817', # camelcase-imported-as-acronym # Example:from example import MyClassName as MCN
 ]
 external = [
     "F841", # SKIP: this is code used in vulture
